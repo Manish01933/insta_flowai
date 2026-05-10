@@ -1,0 +1,31 @@
+# Vedic Astrology Telegram Bot - Dependencies
+
+# Telegram Bot Framework
+python-telegram-bot==20.7
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Astrology Calculations
+
+
+# PDF Generation
+reportlab==4.0.7
+
+# Database
+sqlalchemy==2.0.23
+
+# Payment Gateway
+razorpay==1.4.1
+
+# Web Framework (for webhooks)
+flask==3.0.0
+
+# Date/Time Handling
+python-dateutil==2.8.2
+
+# Logging
+loguru==0.7.2
+
+# Google Generative AI (Gemini)
+google-generativeai==0.3.2
