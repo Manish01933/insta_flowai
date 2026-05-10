@@ -4,7 +4,7 @@ Handles premium service requests and payment flow
 """
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
-from bot.config import States, PREMIUM_PRICE, PREMIUM_FEATURES, PREMIUM_UPSELL_MESSAGE
+from bot.config import States, PREMIUM_PRICE, PREMIUM_FEATURES, PREMIUM_UPSELL_MESSAGE, UPI_ID, WHATSAPP_NUMBER
 
 
 async def premium_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -16,20 +16,21 @@ async def premium_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 🌟 **PREMIUM KUNDLI ANALYSIS**
 ━━━━━━━━━━━━━━━
 
+**Comprehensive Astrological Services:**
 ✅ 99.9% Accurate Deep Analysis
-✅ Career & Money Prediction
-✅ Marriage & Love Life Reading
-✅ Hidden Enemy & Nazar Detection
-✅ Mahadasha Complete Breakdown
-✅ Lucky Numbers & Lucky Dates
-✅ Business Success Timing
-✅ विदेश योग Analysis
-✅ Personalized Remedies
-✅ PDF Report + Voice Explanation
+✅ Career & Financial Projections
+✅ Marriage & Relationship Insights
+✅ Obstacle Identification & Solutions
+✅ Complete Mahadasha Analysis
+✅ Auspicious Timing & Dates
+✅ Business Success Indicators
+✅ Foreign Travel Prospects
+✅ Personalized Remedial Measures
+✅ Detailed PDF Report + Audio Consultation
 
 ---
 
-**💎 Premium Features:**
+**Premium Service Features:**
 """
     
     for i, feature in enumerate(PREMIUM_FEATURES, 1):
@@ -91,12 +92,37 @@ async def pay_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 ---
 
-**Payment Options:**
+**🔥 UPI Payment (Recommended):**
 
-1. UPI
-2. Credit/Debit Card
-3. Net Banking
-4. Wallets
+```
+UPI ID: {UPI_ID}
+```
+
+Scan any UPI app and send ₹{PREMIUM_PRICE} to above UPI ID.
+
+---
+
+**📞 Need Help?**
+
+WhatsApp Support: {WHATSAPP_NUMBER}
+
+---
+
+**💡 Payment Steps:**
+
+1. Copy UPI ID: `{UPI_ID}`
+2. Open any UPI app (PhonePe, GPay, PayTM)
+3. Send ₹{PREMIUM_PRICE} to above UPI ID
+4. Screenshot payment confirmation
+5. Send screenshot here for verification
+
+---
+
+**⏰ Delivery:**
+
+✅ Instant delivery after payment verification
+✅ PDF report + Voice explanation
+✅ Personal remedies included
 
 ---
 
@@ -135,12 +161,21 @@ async def process_payment(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     # In production, integrate with Razorpay here
     # For now, simulate successful payment
     
-    payment_message = """
-⏳ **Processing Your Payment...**
+    payment_message = f"""
+⏳ **Payment Verification Started**
 
-Please wait while we process your payment and generate your Premium Kundli Analysis report.
+Thank you for initiating payment! 
 
-This may take a few moments. 🙏
+**Next Steps:**
+1. Send payment screenshot here
+2. Our team will verify within 5 minutes
+3. Premium report will be delivered instantly
+
+**Need Help?**
+📞 WhatsApp: {WHATSAPP_NUMBER}
+💬 We're here to assist you!
+
+Please wait while we verify your payment... 🙏
 """
     
     await update.message.reply_text(

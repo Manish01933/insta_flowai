@@ -20,6 +20,10 @@ DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./vedic_kundali.db')
 # Premium Service Configuration
 PREMIUM_PRICE = int(os.getenv('PREMIUM_PRICE', 999))
 
+# Payment Configuration
+UPI_ID = os.getenv('UPI_ID', 'darksecrets0unveiled@okhdfcbank')
+WHATSAPP_NUMBER = os.getenv('WHATSAPP_NUMBER', '9888601933')
+
 # Flask Configuration
 FLASK_SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'default-secret-key-change-in-production')
 

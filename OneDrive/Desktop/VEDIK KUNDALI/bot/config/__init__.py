@@ -7,6 +7,8 @@ from .settings import (
     RAZORPAY_KEY_SECRET,
     DATABASE_URL,
     PREMIUM_PRICE,
+    UPI_ID,
+    WHATSAPP_NUMBER,
     FLASK_SECRET_KEY,
     GEMINI_API_KEY,
     BOT_NAME,

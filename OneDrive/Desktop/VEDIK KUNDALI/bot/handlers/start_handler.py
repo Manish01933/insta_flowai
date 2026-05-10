@@ -22,26 +22,24 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     context.user_data.pop('full_name', None)
     context.user_data.pop('concern', None)
     
-    # Create warm greeting message
+    # Create professional greeting message
     greeting_message = f"""🙏 **Welcome to {BOT_NAME}**
 
-I am your **{BOT_TITLE}** with {BOT_EXPERIENCE_YEARS}+ years of experience in Vedic Astrology and Numerology. I have guided {BOT_CLIENTS_GUIDED}+ clients worldwide.
+I am **{BOT_TITLE}** with {BOT_EXPERIENCE_YEARS}+ years of expertise in Vedic Astrology and Numerology. Having served {BOT_CLIENTS_GUIDED}+ distinguished clients globally, I provide precise astrological guidance based on ancient Vedic principles.
 
 ---
 
-To analyze your Kundli, I need your birth details:
+**To commence your astrological analysis, please provide:**
 
-**Please provide:**
-
-1. **Date of Birth** (DD-MM-YYYY)
-2. **Time of Birth** (HH:MM AM/PM)
-3. **Place of Birth** (City, Country)
+📅 **Date of Birth:** DD-MM-YYYY format
+🕐 **Time of Birth:** HH:MM AM/PM format  
+📍 **Place of Birth:** City, Country
 
 ---
 
-Once you provide these details, I will analyze your Rashi, Lagna, and current Dasha to provide initial guidance. ✨
+Upon receiving your complete birth details, I shall conduct a comprehensive analysis of your Rashi, Lagna, and current Dasha periods to deliver personalized insights and guidance.
 
-**Your destiny awaits discovery...**"""
+**Begin your journey of self-discovery through Vedic wisdom...**"""
     
     await update.message.reply_text(
         greeting_message,

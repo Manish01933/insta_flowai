@@ -176,8 +176,8 @@ async def handle_birth_date(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         context.user_data['state'] = States.AWAITING_BIRTH_TIME
         
         await update.message.reply_text(
-            "✅ Date of Birth noted.\n\n"
-            "अब कृपया अपना **Time of Birth** भेजें (HH:MM AM/PM)।",
+            "✅ **Date of Birth successfully recorded.**\n\n"
+            "Kindly provide your **Time of Birth** in HH:MM AM/PM format.",
             parse_mode='Markdown'
         )
     else:
@@ -204,8 +204,8 @@ async def handle_birth_time(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         context.user_data['state'] = States.AWAITING_BIRTH_PLACE
         
         await update.message.reply_text(
-            "✅ Time of Birth noted.\n\n"
-            "अब कृपया अपना **Place of Birth** भेजें (शहर, देश)।",
+            "✅ **Time of Birth successfully recorded.**\n\n"
+            "Please provide your **Place of Birth** (City, Country).",
             parse_mode='Markdown'
         )
     else:
@@ -243,7 +243,7 @@ async def confirm_birth_details(update: Update, context: ContextTypes.DEFAULT_TY
     birth_time = context.user_data.get('birth_time', 'N/A')
     birth_place = context.user_data.get('birth_place', 'N/A')
     
-    confirmation_message = f"""✅ **आपकी जन्म विवरण:**
+    confirmation_message = f"""✅ **Birth Details Confirmation**
 
 📅 **Date of Birth:** {birth_date}
 🕐 **Time of Birth:** {birth_time}
@@ -251,10 +251,13 @@ async def confirm_birth_details(update: Update, context: ContextTypes.DEFAULT_TY
 
 ---
 
-क्या ये विवरण सही हैं? 
+Please verify the accuracy of the above information.
 
-अगर हाँ, तो 'Yes' या 'हाँ' लिखें।
-अगर कोई सुधार चाहिए, तो 'No' लिखें और सही विवरण भेजें।"""
+**To proceed:**
+• Reply **"Yes"** if all details are correct
+• Reply **"No"** to provide corrections
+
+Your confirmation is required to generate your personalized astrological analysis."""
     
     await update.message.reply_text(
         confirmation_message,
