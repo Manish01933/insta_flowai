@@ -1,0 +1,70 @@
+
+> botbazaar@1.0.0 test
+> jest invoiceService.test.ts
+
+ts-jest[ts-jest-transformer] (WARN) Define `ts-jest` config under `globals` is deprecated. Please do
+transform: {
+    <transform_regex>: ['ts-jest', { /* ts-jest config goes here in Jest */ }],
+},
+See more at https://kulshekhar.github.io/ts-jest/docs/getting-started/presets#advanced
+FAIL src/services/invoiceService.test.ts
+  InvoiceService
+    generateInvoiceNumber
+      ├ù should generate unique invoice numbers for each call (17 ms)
+    createInvoice
+      ├ù should create invoice with default currency (1 ms)
+      ΓêÜ should throw error if user not found (3 ms)
+    getInvoice
+      ΓêÜ should retrieve invoice by ID (1 ms)
+      ΓêÜ should return null if invoice not found (1 ms)
+    getInvoiceByNumber
+      ΓêÜ should retrieve invoice by invoice number (1 ms)
+    getUserInvoices
+      ΓêÜ should retrieve paginated invoices for user
+      ΓêÜ should respect pagination parameters
+    updateInvoiceStatus
+      ΓêÜ should update invoice status (3 ms)
+    markInvoiceAsSent
+      ΓêÜ should mark invoice as sent with email metadata (1 ms)
+    updateInvoicePdfUrl
+      ΓêÜ should update invoice PDF URL
+    generateInvoiceDetails
+      ΓêÜ should generate formatted invoice details (24 ms)
+      ΓêÜ should use email as name if first/last names not provided (1 ms)
+
+  ΓùÅ InvoiceService ΓÇ║ generateInvoiceNumber ΓÇ║ should generate unique invoice numbers for each call
+
+    TypeError: Cannot read properties of undefined (reading 'Decimal')
+
+      102 |         paymentId,
+      103 |         invoiceNumber,
+    > 104 |         amount: new Prisma.Decimal(amount),
+          |                            ^
+      105 |         currency,
+      106 |         issueDate,
+      107 |         dueDate,
+
+      at createInvoice (src/services/invoiceService.ts:104:28)
+      at Object.<anonymous> (src/services/invoiceService.test.ts:63:24)
+
+  ΓùÅ InvoiceService ΓÇ║ createInvoice ΓÇ║ should create invoice with default currency
+
+    TypeError: Cannot read properties of undefined (reading 'Decimal')
+
+      102 |         paymentId,
+      103 |         invoiceNumber,
+    > 104 |         amount: new Prisma.Decimal(amount),
+          |                            ^
+      105 |         currency,
+      106 |         issueDate,
+      107 |         dueDate,
+
+      at createInvoice (src/services/invoiceService.ts:104:28)
+      at Object.<anonymous> (src/services/invoiceService.test.ts:90:23)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 11 passed, 13 total
+Snapshots:   0 total
+Time:        4.726 s, estimated 10 s
+Ran all test suites matching /invoiceService.test.ts/i.
+

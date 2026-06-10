@@ -1,0 +1,27 @@
+
+> botbazaar@1.0.0 build
+> tsc
+
+src/middleware/subscriptionTierChecker.ts(171,54): error TS2304: Cannot find name 'userId'.
+src/middleware/subscriptionTierChecker.ts(178,49): error TS2304: Cannot find name 'userId'.
+src/middleware/subscriptionTierChecker.ts(181,7): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+src/middleware/subscriptionTierChecker.ts(195,9): error TS18004: No value exists in scope for the shorthand property 'userId'. Either declare one or provide an initializer.
+src/middleware/subscriptionTierChecker.ts(227,54): error TS2304: Cannot find name 'userId'.
+src/middleware/subscriptionTierChecker.ts(234,52): error TS2304: Cannot find name 'userId'.
+src/middleware/subscriptionTierChecker.ts(237,7): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+src/middleware/subscriptionTierChecker.ts(251,9): error TS18004: No value exists in scope for the shorthand property 'userId'. Either declare one or provide an initializer.
+src/middleware/subscriptionTierChecker.ts(266,3): error TS6133: 'res' is declared but its value is never read.
+src/services/razorpayService.ts(146,86): error TS2345: Argument of type '{ notes?: Record<string, string> | undefined; } | undefined' is not assignable to parameter of type 'number | boolean | undefined'.
+  Type '{ notes?: Record<string, string> | undefined; }' is not assignable to type 'number | boolean | undefined'.
+src/services/razorpayService.ts(169,85): error TS2345: Argument of type '{ pause_at?: number | "now" | undefined; notes?: Record<string, string> | undefined; } | undefined' is not assignable to parameter of type '{ pause_at: "now"; } | undefined'.
+  Type '{ pause_at?: number | "now" | undefined; notes?: Record<string, string> | undefined; }' is not assignable to type '{ pause_at: "now"; }'.
+    Types of property ''pause_at'' are incompatible.
+      Type 'number | "now" | undefined' is not assignable to type '"now"'.
+        Type 'undefined' is not assignable to type '"now"'.
+src/services/razorpayService.ts(191,86): error TS2345: Argument of type '{ notes?: Record<string, string> | undefined; } | undefined' is not assignable to parameter of type '{ resume_at: "now"; } | undefined'.
+  Property ''resume_at'' is missing in type '{ notes?: Record<string, string> | undefined; }' but required in type '{ resume_at: "now"; }'.
+src/services/subscriptionTierService.ts(6,24): error TS6133: 'User' is declared but its value is never read.
+src/types/payment.ts(36,9): error TS2300: Duplicate identifier 'description'.
+src/types/payment.ts(40,9): error TS2300: Duplicate identifier 'description'.
+src/types/payment.ts(97,9): error TS2300: Duplicate identifier 'remaining_count'.
+src/types/payment.ts(99,9): error TS2300: Duplicate identifier 'remaining_count'.
