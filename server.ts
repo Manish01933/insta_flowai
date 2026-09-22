@@ -269,6 +269,45 @@ async function startServer() {
     }
   });
 
+  // 3c. Interactive AI Setup Guide / Onboarding Copilot for Clients (POST /api/onboard-copilot)
+  app.post('/api/onboard-copilot', async (req, res) => {
+    try {
+      const { message, conversationHistory = [] } = req.body;
+      if (!message) return res.status(400).json({ error: 'Message is required' });
+
+      const copilotPrompt = `System Instructions: You are 'InstaFlow Copilot', an expert, welcoming, and friendly AI Onboarding Guide inside the InstaFlow AI SaaS platform.
+Your Mission: Guide new business owners and clients on how to use this platform to automate their Instagram DMs with zero confusion.
+Response Style: Conversational, structured, helpful, encouraging, and in the user's language (Hindi, Hinglish, or English). Keep answers practical and easy to follow.
+
+Platform Architecture & Workflow you explain:
+1. "Knowledge Base" Tab: Business adds their FAQs, products, prices, refund rules, delivery details, and sets their AI Bot persona.
+2. "DM AI Simulator" Tab: Playground where the client tests asking customer questions to see how the bot answers before going live.
+3. "Connection Center" Tab: Connecting their real Instagram Business/Creator account via Meta Page ID & Access Token (from developers.facebook.com). Webhook URL: ${process.env.APP_URL || 'https://instaflowai-production-7ebc.up.railway.app'}/api/webhook/instagram with verify token 'instaflow_secure_verify_token'.
+4. "Live Chat Inbox" Tab: Where real incoming Instagram DMs and AI replies appear in real-time.
+5. "Analytics & Credits" Tab: Tracks resolved inquiries, total DMs, and active leads.
+
+Recent Chat History:
+${conversationHistory.map((m: any) => `${m.sender === 'user' ? 'Client' : 'Copilot'}: ${m.text}`).join('\n')}
+
+Client Question: "${message}"
+
+Helpful Copilot Response:`;
+
+      let reply = "Hello! I am your InstaFlow AI Setup Guide. What business do you run? I'll guide you step-by-step!";
+      try {
+        const generated = await generateAIResponse(copilotPrompt);
+        if (generated) reply = generated;
+      } catch (err) {
+        console.error('Copilot AI error:', err);
+      }
+
+      res.json({ reply, timestamp: new Date().toISOString() });
+    } catch (err) {
+      console.error('Copilot error:', err);
+      res.status(500).json({ error: 'Failed to generate copilot response' });
+    }
+  });
+
   // 3b. Verify Instagram Token against Meta Graph API
   app.post('/api/verify-instagram-token', async (req, res) => {
     try {

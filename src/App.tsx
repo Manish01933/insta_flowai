@@ -3,7 +3,7 @@ import {
   Instagram, MessageSquare, BookOpen, BarChart3, Settings, 
   ShieldCheck, Zap, UserCheck, UserX, Send, Plus, Trash2, 
   CheckCircle2, AlertCircle, Lock, Key, RefreshCw, LogOut, 
-  FileText, ExternalLink, Sparkles, Database, Code
+  FileText, ExternalLink, Sparkles, Database, Code, Bot, X, HelpCircle, ChevronDown
 } from 'lucide-react';
 import { auth, db } from './firebase';
 import { 
@@ -74,6 +74,56 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [authError, setAuthError] = useState('');
+
+  // AI Onboarding Copilot state
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [copilotInput, setCopilotInput] = useState('');
+  const [isCopilotLoading, setIsCopilotLoading] = useState(false);
+  const [copilotMessages, setCopilotMessages] = useState<Array<{ sender: 'copilot' | 'user'; text: string; time: string }>>([
+    {
+      sender: 'copilot',
+      text: 'Namaste! 👋 Main aapka InstaFlow Setup Guide hoon. Main aapko apne business ke liye 24/7 Instagram AI Bot setup karne me step-by-step guide karunga. Aapka kaunsa business hai, ya aap shuru kaise karna chahte hain?',
+      time: 'Just now'
+    }
+  ]);
+
+  const handleCopilotSend = async (customText?: string) => {
+    const textToSend = customText || copilotInput;
+    if (!textToSend.trim() || isCopilotLoading) return;
+
+    setCopilotInput('');
+    const newHistory = [
+      ...copilotMessages,
+      { sender: 'user' as const, text: textToSend, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+    ];
+    setCopilotMessages(newHistory);
+    setIsCopilotLoading(true);
+
+    try {
+      const res = await fetch('/api/onboard-copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: textToSend,
+          conversationHistory: newHistory.slice(-6)
+        })
+      });
+      const data = await res.json();
+      if (data.reply) {
+        setCopilotMessages(prev => [
+          ...prev,
+          { sender: 'copilot', text: data.reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+        ]);
+      }
+    } catch (e) {
+      setCopilotMessages(prev => [
+        ...prev,
+        { sender: 'copilot', text: 'Step 1: Knowledge Base me FAQs daalein. Step 2: Simulator me test karein. Step 3: Connection Center me Instagram jodein!', time: 'Just now' }
+      ]);
+    } finally {
+      setIsCopilotLoading(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -852,6 +902,143 @@ export default function App() {
             </div>
           )}
         </main>
+      </div>
+
+      {/* Floating AI Setup Copilot for Clients */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+        {isCopilotOpen ? (
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-[92vw] sm:w-[400px] h-[520px] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 p-4 text-white flex items-center justify-between shadow-md">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm leading-tight">InstaFlow AI Copilot</h3>
+                  <p className="text-[11px] text-purple-200 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    24/7 Client Setup Guide
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsCopilotOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Quick Action Chips */}
+            <div className="bg-purple-50/70 border-b border-purple-100 p-2.5 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+              <button 
+                onClick={() => {
+                  handleCopilotSend("Mujhe shuru se step-by-step batao ki kya karna hai?");
+                }}
+                className="whitespace-nowrap bg-white border border-purple-200 text-purple-700 font-medium px-2.5 py-1 rounded-full hover:bg-purple-100 transition shadow-2xs"
+              >
+                🚀 Kaise shuru karein?
+              </button>
+              <button 
+                onClick={() => {
+                  setActiveTab('knowledge');
+                  handleCopilotSend("Knowledge Base me FAQs kaise add karein?");
+                }}
+                className="whitespace-nowrap bg-white border border-purple-200 text-purple-700 font-medium px-2.5 py-1 rounded-full hover:bg-purple-100 transition shadow-2xs"
+              >
+                📝 FAQs Training
+              </button>
+              <button 
+                onClick={() => {
+                  setActiveTab('connections');
+                  handleCopilotSend("Instagram Page connect karne ke liye token aur page ID kahan se milegi?");
+                }}
+                className="whitespace-nowrap bg-white border border-purple-200 text-purple-700 font-medium px-2.5 py-1 rounded-full hover:bg-purple-100 transition shadow-2xs"
+              >
+                🔗 Instagram Connection
+              </button>
+              <button 
+                onClick={() => {
+                  setActiveTab('simulator');
+                  handleCopilotSend("Bot ko test kaise karein?");
+                }}
+                className="whitespace-nowrap bg-white border border-purple-200 text-purple-700 font-medium px-2.5 py-1 rounded-full hover:bg-purple-100 transition shadow-2xs"
+              >
+                🧪 Bot Testing
+              </button>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/50">
+              {copilotMessages.map((msg, idx) => (
+                <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.sender === 'copilot' && (
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold mr-2 mt-0.5 shrink-0">
+                      AI
+                    </div>
+                  )}
+                  <div className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-2xs ${
+                    msg.sender === 'user' 
+                      ? 'bg-purple-600 text-white rounded-tr-none' 
+                      : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none whitespace-pre-line'
+                  }`}>
+                    {msg.text}
+                    <div className={`text-[9px] mt-1 text-right ${msg.sender === 'user' ? 'text-purple-200' : 'text-slate-400'}`}>
+                      {msg.time}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {isCopilotLoading && (
+                <div className="flex items-center gap-2 text-slate-500 text-xs italic">
+                  <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                  </div>
+                  Copilot soch raha hai...
+                </div>
+              )}
+            </div>
+
+            {/* Input Footer */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCopilotSend();
+              }}
+              className="p-3 bg-white border-t border-slate-100 flex items-center gap-2"
+            >
+              <input 
+                type="text" 
+                value={copilotInput}
+                onChange={(e) => setCopilotInput(e.target.value)}
+                placeholder="Puchiye bot setup ke baare me..."
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"
+              />
+              <button 
+                type="submit"
+                disabled={!copilotInput.trim() || isCopilotLoading}
+                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white p-2 rounded-xl transition shadow-xs"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        ) : (
+          <button 
+            onClick={() => setIsCopilotOpen(true)}
+            className="group flex items-center gap-3 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white px-4 py-3 rounded-full shadow-2xl hover:scale-105 transition duration-200"
+          >
+            <div className="relative">
+              <Bot className="w-6 h-6 text-white" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white animate-pulse"></span>
+            </div>
+            <div className="text-left hidden sm:block">
+              <div className="text-xs font-bold leading-tight">Need Setup Help?</div>
+              <div className="text-[10px] text-purple-200">Ask AI Copilot</div>
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Privacy Policy Modal */}
