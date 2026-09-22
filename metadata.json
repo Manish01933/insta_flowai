@@ -1,0 +1,6 @@
+{
+  "name": "InstaFlow AI - Multi-Tenant Instagram Automation SaaS",
+  "description": "Production-ready multi-tenant Instagram AI automation platform powered by Gemini and Firebase with zero-knowledge encryption.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

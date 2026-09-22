@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Tenants collection: documents keyed by tenantId (auth.uid)
+    match /tenants/{tenantId} {
+      allow get, list: if isSignedIn() && request.auth.uid == tenantId;
+      allow create: if isSignedIn() && request.auth.uid == tenantId && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn() && request.auth.uid == tenantId && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if isSignedIn() && request.auth.uid == tenantId;
+    }
+
+    // Instagram Tokens collection: tenantId equals request.auth.uid
+    match /instagram_tokens/{tokenId} {
+      allow get, list: if isSignedIn() && (resource == null || resource.data.tenantId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.tenantId == request.auth.uid && request.resource.data.tenantId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.tenantId == request.auth.uid;
+    }
+
+    // Knowledge Base collection: tenantId equals request.auth.uid
+    match /knowledge_base/{docId} {
+      allow get, list: if isSignedIn() && (resource == null || resource.data.tenantId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.tenantId == request.auth.uid && request.resource.data.tenantId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.tenantId == request.auth.uid;
+    }
+
+    // Chat Logs collection: tenantId equals request.auth.uid
+    match /chat_logs/{chatId} {
+      allow get, list: if isSignedIn() && (resource == null || resource.data.tenantId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.tenantId == request.auth.uid && request.resource.data.tenantId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.tenantId == request.auth.uid;
+    }
+  }
+}
