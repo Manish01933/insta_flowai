@@ -4,12 +4,61 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
+import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'openrouter/free';
+
+let aiClient: GoogleGenAI | null = null;
+if (GEMINI_API_KEY) {
+  try {
+    aiClient = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+  } catch (e) {
+    console.error('Failed to initialize GoogleGenAI client:', e);
+  }
+}
+
+// Unified AI Response generator (Gemini first, OpenRouter fallback)
+async function generateAIResponse(prompt: string): Promise<string> {
+  if (GEMINI_API_KEY && aiClient) {
+    try {
+      const response = await aiClient.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+      if (response?.text) {
+        return response.text.trim();
+      }
+    } catch (err: any) {
+      console.warn('Gemini 2.5 flash error, trying gemini-1.5-flash fallback:', err?.message || err);
+      try {
+        const fallback = await aiClient.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: prompt,
+        });
+        if (fallback?.text) {
+          return fallback.text.trim();
+        }
+      } catch (err2: any) {
+        console.error('Gemini fallback failed:', err2?.message || err2);
+      }
+    }
+  }
+
+  if (OPENROUTER_API_KEY) {
+    try {
+      return await callOpenRouter(prompt);
+    } catch (e) {
+      console.error('OpenRouter failed:', e);
+    }
+  }
+
+  return '';
+}
 
 // OpenRouter AI helper (OpenAI-compatible API)
 async function callOpenRouter(prompt: string): Promise<string> {
@@ -130,15 +179,13 @@ async function startServer() {
             const prompt = `System Instructions: You are a helpful AI assistant for this business. Answer FAQs politely and naturally.\n\nCustomer Inquiry: "${messageText}"\n\nGenerate a helpful, friendly, natural Instagram DM response:`;
             
             let aiReply = "Thanks for reaching out! We've received your message and will get back to you shortly.";
-            if (OPENROUTER_API_KEY) {
-              try {
-                const result = await callOpenRouter(prompt);
-                if (result) {
-                  aiReply = result;
-                }
-              } catch (aiErr) {
-                console.error('Gemini API Error in Webhook:', aiErr);
+            try {
+              const generated = await generateAIResponse(prompt);
+              if (generated) {
+                aiReply = generated;
               }
+            } catch (aiErr) {
+              console.error('AI generation error in Webhook:', aiErr);
             }
 
             const logKey = `${instagram_page_id}:${sender_id}`;
@@ -198,22 +245,17 @@ async function startServer() {
       let reply = "Hello! Thanks for your message. How can I assist you today?";
       let creditsUsed = 1;
 
-      if (GEMINI_API_KEY) {
-        try {
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: fullPrompt,
-          });
-          if (response.text) {
-            reply = response.text.trim();
-            creditsUsed = Math.ceil(reply.length / 50);
-          }
-        } catch (err) {
-          console.error('Gemini API simulation error:', err);
-          reply = "Thanks for your message! Our team is currently reviewing your inquiry and will reply shortly.";
+      try {
+        const generated = await generateAIResponse(fullPrompt);
+        if (generated) {
+          reply = generated;
+          creditsUsed = Math.max(1, Math.ceil(reply.length / 50));
+        } else {
+          reply = `[AI Assistant]: Thanks for reaching out about "${message}". How can I help you today?`;
         }
-      } else {
-        reply = `[Simulated AI Reply]: Thanks for asking about "${message}". Based on our knowledge base, we're happy to help!`;
+      } catch (aiErr) {
+        console.error('AI simulation error:', aiErr);
+        reply = "Thanks for your message! Our team is currently reviewing your inquiry and will reply shortly.";
       }
 
       res.json({
