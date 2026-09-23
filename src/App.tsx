@@ -27,6 +27,78 @@ export default function App() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectError, setConnectError] = useState('');
   const [connectedPageName, setConnectedPageName] = useState('');
+  const [connectedUsername, setConnectedUsername] = useState('');
+  const [showManualSetup, setShowManualSetup] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+
+  useEffect(() => {
+    const handleMetaAuthMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'INSTAGRAM_CONNECTED' && event.data?.data) {
+        const { pageId: newPageId, pageName, username, accessToken: newAccessToken } = event.data.data;
+        setPageId(newPageId);
+        setAccessToken(newAccessToken || 'encrypted_oauth_token');
+        setConnectedPageName(pageName || 'Instagram Business Account');
+        setConnectedUsername(username || pageName);
+        setIsConnected(true);
+        setOauthLoading(false);
+      }
+    };
+    window.addEventListener('message', handleMetaAuthMessage);
+    return () => window.removeEventListener('message', handleMetaAuthMessage);
+  }, []);
+
+  const handleOneClickOAuth = async () => {
+    setOauthLoading(true);
+    setConnectError('');
+    try {
+      const res = await fetch('/api/auth/meta/url');
+      const data = await res.json();
+      if (data.url) {
+        const width = 600;
+        const height = 750;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+        const popup = window.open(
+          data.url, 
+          'meta_oauth_window', 
+          `width=${width},height=${height},top=${top},left=${left}`
+        );
+        if (!popup) {
+          window.location.href = data.url;
+        }
+      } else {
+        setConnectError('Could not initialize Meta OAuth URL.');
+        setOauthLoading(false);
+      }
+    } catch (e: any) {
+      setConnectError('OAuth connection error: ' + (e?.message || 'Check connection'));
+      setOauthLoading(false);
+    }
+  };
+
+  const handleInstantDemoConnect = async () => {
+    setOauthLoading(true);
+    setConnectError('');
+    try {
+      const res = await fetch('/api/connect-instant-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandName: 'The Nutrition Hut' })
+      });
+      const data = await res.json();
+      if (data.data) {
+        setPageId(data.data.pageId);
+        setAccessToken(data.data.accessToken);
+        setConnectedPageName(data.data.pageName);
+        setConnectedUsername(data.data.username);
+        setIsConnected(true);
+      }
+    } catch (e: any) {
+      setConnectError('Demo connection error.');
+    } finally {
+      setOauthLoading(false);
+    }
+  };
 
   // Knowledge Base state
   const [kbItems, setKbItems] = useState([
@@ -425,116 +497,183 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs md:col-span-2 space-y-6">
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isConnected ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                        <Instagram className="w-6 h-6" />
+                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-xs md:col-span-2 space-y-6">
+                  {/* Account Status Header */}
+                  <div className="flex items-center justify-between pb-6 border-b border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-xs ${isConnected ? 'bg-gradient-to-tr from-pink-500 to-purple-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                        <Instagram className="w-7 h-7" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900">Instagram Professional Account</h3>
-                        <p className="text-xs text-slate-500">{isConnected ? `Mapped Page ID: ${pageId}` : 'Not connected to Meta Graph API'}</p>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-base">{isConnected ? (connectedUsername || connectedPageName) : 'Instagram Business Account'}</h3>
+                          {isConnected && <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50" />}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">{isConnected ? `Mapped Page ID: ${pageId} • 24/7 AI Active` : 'Not connected • Connect to enable automated DMs'}</p>
                       </div>
                     </div>
                     <div>
                       {isConnected ? (
-                        <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Connected
+                        <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                          Connected
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200">
-                          <AlertCircle className="w-3.5 h-3.5" /> Disconnected
+                        <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full">
+                          Disconnected
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Instagram Page ID</label>
-                      <input 
-                        type="text" 
-                        value={pageId} 
-                        onChange={(e) => setPageId(e.target.value)}
-                        placeholder="e.g. 17841434784408449"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 font-mono focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Encrypted Meta Access Token (AES-256-GCM)</label>
-                      <div className="relative">
-                        <input 
-                          type="password" 
-                          value={accessToken} 
-                          onChange={(e) => setAccessToken(e.target.value)}
-                          placeholder="EAA... paste your Meta Access Token"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 font-mono focus:outline-none focus:border-purple-500"
-                        />
-                        <div className="absolute right-3 top-2.5 text-xs text-emerald-600 flex items-center gap-1">
-                          <Lock className="w-3.5 h-3.5" /> Secured at Rest
+                  {/* Connected State View */}
+                  {isConnected ? (
+                    <div className="space-y-6 animate-in fade-in duration-200">
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                              AI
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-emerald-950 text-sm">24/7 AI Automation is LIVE</h4>
+                              <p className="text-xs text-emerald-700">Any customer DM to {connectedUsername || connectedPageName} will be answered by Gemini AI automatically.</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {connectError && (
-                    <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
-                      <span>{connectError}</span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button 
+                          onClick={() => setActiveTab('simulator')}
+                          className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-xs flex items-center gap-2 cursor-pointer"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Test Bot in Simulator
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setIsConnected(false);
+                            setConnectedPageName('');
+                            setConnectedUsername('');
+                          }}
+                          className="bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 hover:border-rose-200 font-medium px-5 py-2.5 rounded-xl text-sm transition cursor-pointer"
+                        >
+                          Disconnect Account
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Disconnected State View: 1-Click Connect */
+                    <div className="space-y-6">
+                      <div className="bg-gradient-to-tr from-purple-50 via-pink-50 to-amber-50 rounded-2xl p-6 border border-purple-100 relative overflow-hidden">
+                        <div className="relative z-10 space-y-3">
+                          <div className="inline-flex items-center gap-1.5 bg-purple-600/10 text-purple-700 font-semibold px-2.5 py-1 rounded-full text-xs">
+                            <Zap className="w-3.5 h-3.5 fill-purple-600" />
+                            Fastest Setup (No tokens or IDs needed)
+                          </div>
+                          <h3 className="font-bold text-slate-900 text-lg">Connect in 1 Click via Meta Login</h3>
+                          <p className="text-xs text-slate-600 max-w-lg leading-relaxed">
+                            Click the button below to log in with Facebook/Instagram. Our platform securely connects your Business Page, configures webhooks, and enables 24/7 AI replies automatically.
+                          </p>
+
+                          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <button 
+                              onClick={handleOneClickOAuth}
+                              disabled={oauthLoading}
+                              className="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center justify-center gap-2.5 text-sm transition active:scale-98 cursor-pointer"
+                            >
+                              {oauthLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Instagram className="w-4 h-4" />}
+                              {oauthLoading ? 'Opening Meta Login...' : '⚡ Connect Instagram (1-Click)'}
+                            </button>
+
+                            <button 
+                              onClick={handleInstantDemoConnect}
+                              disabled={oauthLoading}
+                              className="bg-white hover:bg-slate-100 text-slate-700 font-semibold px-4 py-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-center gap-2 text-xs transition cursor-pointer"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                              Instant Demo Account
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Manual / Developer Setup Toggle */}
+                      <div className="pt-2">
+                        <button 
+                          onClick={() => setShowManualSetup(!showManualSetup)}
+                          className="text-xs font-semibold text-purple-600 hover:text-purple-700 flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>{showManualSetup ? 'Hide manual configuration' : 'Need manual Page ID & Token setup for developers?'}</span>
+                          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showManualSetup ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {showManualSetup && (
+                          <div className="mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 animate-in fade-in duration-200">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">Instagram Page ID</label>
+                              <input 
+                                type="text" 
+                                value={pageId} 
+                                onChange={(e) => setPageId(e.target.value)}
+                                placeholder="e.g. 17841434784408449"
+                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 font-mono focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">Meta Access Token</label>
+                              <input 
+                                type="password" 
+                                value={accessToken} 
+                                onChange={(e) => setAccessToken(e.target.value)}
+                                placeholder="EAA... paste token"
+                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 font-mono focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+
+                            <button 
+                              onClick={async () => {
+                                setConnectError('');
+                                setIsConnecting(true);
+                                try {
+                                  const res = await fetch('/api/verify-instagram-token', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ accessToken, pageId })
+                                  });
+                                  const data = await res.json();
+                                  if (data.valid) {
+                                    setIsConnected(true);
+                                    setConnectedPageName(data.pageName || 'Instagram Business Account');
+                                  } else {
+                                    setConnectError(data.error || 'Invalid token or page ID');
+                                  }
+                                } catch (err: any) {
+                                  setConnectError('Failed to verify token with Meta API.');
+                                } finally {
+                                  setIsConnecting(false);
+                                }
+                              }}
+                              disabled={isConnecting}
+                              className="bg-slate-900 hover:bg-black text-white font-medium px-5 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer"
+                            >
+                              {isConnecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
+                              Verify & Save Token
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {connectError && (
+                        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3.5 rounded-xl flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                          <span>{connectError}</span>
+                        </div>
+                      )}
                     </div>
                   )}
-
-                  {connectedPageName && isConnected && (
-                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                      <span>Successfully connected to: <strong>{connectedPageName}</strong></span>
-                    </div>
-                  )}
-
-                  <div className="pt-4 flex items-center gap-4">
-                    {isConnected ? (
-                      <button 
-                        onClick={() => {
-                          setIsConnected(false);
-                          setConnectedPageName('');
-                        }}
-                        className="bg-rose-50 text-rose-700 border border-rose-200 font-medium px-5 py-2.5 rounded-xl text-sm hover:bg-rose-100 transition"
-                      >
-                        Disconnect Account
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={async () => {
-                          setConnectError('');
-                          setIsConnecting(true);
-                          try {
-                            const res = await fetch('/api/verify-instagram-token', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ accessToken, pageId })
-                            });
-                            const data = await res.json();
-                            if (data.valid) {
-                              setIsConnected(true);
-                              setConnectedPageName(data.pageName || 'Instagram Business Account');
-                            } else {
-                              setConnectError(data.error || 'Invalid token or page ID');
-                            }
-                          } catch (err: any) {
-                            setConnectError('Failed to verify token with Meta API.');
-                          } finally {
-                            setIsConnecting(false);
-                          }
-                        }}
-                        disabled={isConnecting}
-                        className="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white font-medium px-6 py-2.5 rounded-xl text-sm shadow-md hover:opacity-95 transition flex items-center gap-2"
-                      >
-                        {isConnecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Instagram className="w-4 h-4" />}
-                        {isConnecting ? 'Verifying with Meta API...' : 'Connect & Verify Instagram'}
-                      </button>
-                    )}
-                  </div>
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">

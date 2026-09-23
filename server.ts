@@ -12,6 +12,9 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'openrouter/free';
+const META_APP_ID = process.env.META_APP_ID || '1571980907590907';
+const META_APP_SECRET = process.env.META_APP_SECRET || '';
+const APP_URL = process.env.APP_URL || 'https://instaflowai-production-7ebc.up.railway.app';
 
 let aiClient: GoogleGenAI | null = null;
 if (GEMINI_API_KEY) {
@@ -306,6 +309,157 @@ Helpful Copilot Response:`;
       console.error('Copilot error:', err);
       res.status(500).json({ error: 'Failed to generate copilot response' });
     }
+  });
+
+  // 3d. 1-Click Meta OAuth: Get Authorization URL
+  app.get('/api/auth/meta/url', (req, res) => {
+    const redirectUri = `${APP_URL}/api/auth/meta/callback`;
+    const scopes = [
+      'instagram_basic',
+      'instagram_manage_messages',
+      'pages_show_list',
+      'pages_read_engagement',
+      'pages_manage_metadata'
+    ].join(',');
+    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    res.json({ url: authUrl });
+  });
+
+  // 3e. 1-Click Meta OAuth: Callback Handler
+  app.get('/api/auth/meta/callback', async (req, res) => {
+    const { code, error, error_description } = req.query;
+    if (error || !code) {
+      return res.send(`
+        <html>
+          <body style="font-family:sans-serif;text-align:center;padding:50px;">
+            <h2 style="color:#e11d48;">Connection Cancelled</h2>
+            <p>${error_description || 'Authorization was not completed.'}</p>
+            <button onclick="window.close()" style="padding:10px 20px;border-radius:8px;background:#333;color:#fff;border:none;cursor:pointer;">Close Window</button>
+          </body>
+        </html>
+      `);
+    }
+
+    try {
+      const redirectUri = `${APP_URL}/api/auth/meta/callback`;
+      // Exchange code for user access token
+      const tokenUrl = `https://graph.facebook.com/v20.0/oauth/access_token?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${META_APP_SECRET}&code=${code}`;
+      const tokenRes = await fetch(tokenUrl);
+      const tokenData = await tokenRes.json();
+
+      let userAccessToken = tokenData.access_token;
+      if (!userAccessToken) {
+        throw new Error(tokenData.error?.message || 'Failed to exchange authorization code for token');
+      }
+
+      // Fetch Facebook Pages & connected Instagram Business accounts
+      const accountsRes = await fetch(`https://graph.facebook.com/v20.0/me/accounts?fields=name,id,access_token,instagram_business_account{id,username,name,profile_picture_url}&access_token=${userAccessToken}`);
+      const accountsData = await accountsRes.json();
+
+      let connectedAccount: any = null;
+
+      if (accountsData.data && Array.isArray(accountsData.data)) {
+        for (const page of accountsData.data) {
+          if (page.instagram_business_account && page.instagram_business_account.id) {
+            connectedAccount = {
+              pageId: page.instagram_business_account.id,
+              username: page.instagram_business_account.username || page.instagram_business_account.name || page.name,
+              pageName: page.name,
+              accessToken: page.access_token || userAccessToken
+            };
+
+            // Register in connected pages map
+            connectedPages.set(connectedAccount.pageId, {
+              accessToken: connectedAccount.accessToken,
+              pageName: `${connectedAccount.username} (${page.name})`
+            });
+
+            // Automatically subscribe page to Instagram webhooks!
+            try {
+              await fetch(`https://graph.facebook.com/v20.0/${page.id}/subscribed_apps?subscribed_fields=messages,messaging_postbacks&access_token=${connectedAccount.accessToken}`, {
+                method: 'POST'
+              });
+            } catch (subErr) {
+              console.warn('Auto webhook subscription notice:', subErr);
+            }
+            break;
+          }
+        }
+      }
+
+      if (!connectedAccount) {
+        return res.send(`
+          <html>
+            <body style="font-family:sans-serif;text-align:center;padding:40px;line-height:1.6;background:#f8fafc;">
+              <div style="max-width:440px;margin:auto;background:#fff;padding:30px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.06);">
+                <div style="font-size:40px;">⚠️</div>
+                <h3 style="color:#d97706;margin-top:10px;">Instagram Business Account Not Linked</h3>
+                <p style="color:#64748b;font-size:14px;">We found your Facebook account, but your Instagram Professional account is not linked to your Facebook Page yet.</p>
+                <div style="text-align:left;background:#f1f5f9;padding:12px;border-radius:12px;font-size:12px;color:#334155;margin:15px 0;">
+                  <strong>Quick fix:</strong> Open Instagram App ➔ Edit Profile ➔ Page ➔ Connect Facebook Page.
+                </div>
+                <button onclick="window.close()" style="padding:10px 20px;border-radius:10px;background:#4f46e5;color:#fff;border:none;cursor:pointer;font-weight:bold;">Close Window</button>
+              </div>
+            </body>
+          </html>
+        `);
+      }
+
+      // Success popup HTML with postMessage back to dashboard
+      return res.send(`
+        <html>
+          <head><title>Instagram Connected</title></head>
+          <body style="font-family:sans-serif;text-align:center;padding:50px;background:#f8fafc;">
+            <div style="max-width:400px;margin:auto;background:#fff;padding:30px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+              <div style="font-size:48px;">🎉</div>
+              <h2 style="color:#10b981;margin-bottom:6px;">Connected Successfully!</h2>
+              <p style="color:#0f172a;font-weight:bold;font-size:18px;">@${connectedAccount.username}</p>
+              <p style="color:#64748b;font-size:13px;">24/7 AI DM replies are now active on this account.</p>
+            </div>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({
+                  type: 'INSTAGRAM_CONNECTED',
+                  data: ${JSON.stringify(connectedAccount)}
+                }, '*');
+                setTimeout(() => window.close(), 1200);
+              }
+            </script>
+          </body>
+        </html>
+      `);
+    } catch (err: any) {
+      console.error('OAuth Callback Exception:', err);
+      return res.send(`
+        <html>
+          <body style="font-family:sans-serif;text-align:center;padding:50px;">
+            <h2 style="color:#e11d48;">Connection Failed</h2>
+            <p>${err?.message || 'Failed to authorize with Meta.'}</p>
+            <button onclick="window.close()" style="padding:10px 20px;border-radius:8px;background:#333;color:#fff;border:none;cursor:pointer;">Close Window</button>
+          </body>
+        </html>
+      `);
+    }
+  });
+
+  // 3f. Instant 1-Click Demo Account for Prospect Presentations
+  app.post('/api/connect-instant-demo', (req, res) => {
+    const { brandName = 'The Nutrition Hut' } = req.body;
+    const sanitized = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const demoPageId = '178414' + Math.floor(1000000000 + Math.random() * 9000000000);
+    const demoAccount = {
+      pageId: demoPageId,
+      username: `@${sanitized || 'business'}_official`,
+      pageName: brandName,
+      accessToken: 'demo_token_' + Math.random().toString(36).substring(2, 10)
+    };
+
+    connectedPages.set(demoAccount.pageId, {
+      accessToken: demoAccount.accessToken,
+      pageName: `${demoAccount.username} (${brandName})`
+    });
+
+    res.json({ success: true, data: demoAccount });
   });
 
   // 3b. Verify Instagram Token against Meta Graph API
