@@ -316,12 +316,12 @@ Helpful Copilot Response:`;
     const redirectUri = `${APP_URL}/api/auth/meta/callback`;
     const scopes = [
       'instagram_business_basic',
-      'instagram_manage_messages',
+      'instagram_business_manage_messages',
       'pages_show_list',
       'pages_read_engagement',
       'pages_manage_metadata'
     ].join(',');
-    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
     res.json({ url: authUrl });
   });
 
@@ -343,7 +343,7 @@ Helpful Copilot Response:`;
     try {
       const redirectUri = `${APP_URL}/api/auth/meta/callback`;
       // Exchange code for user access token
-      const tokenUrl = `https://graph.facebook.com/v20.0/oauth/access_token?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${META_APP_SECRET}&code=${code}`;
+      const tokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${META_APP_SECRET}&code=${code}`;
       const tokenRes = await fetch(tokenUrl);
       const tokenData = await tokenRes.json();
 
@@ -353,7 +353,7 @@ Helpful Copilot Response:`;
       }
 
       // Fetch Facebook Pages & connected Instagram Business accounts
-      const accountsRes = await fetch(`https://graph.facebook.com/v20.0/me/accounts?fields=name,id,access_token,instagram_business_account{id,username,name,profile_picture_url}&access_token=${userAccessToken}`);
+      const accountsRes = await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,access_token,instagram_business_account{id,username,name,profile_picture_url}&access_token=${userAccessToken}`);
       const accountsData = await accountsRes.json();
 
       let connectedAccount: any = null;
