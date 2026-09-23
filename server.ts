@@ -315,7 +315,7 @@ Helpful Copilot Response:`;
   app.get('/api/auth/meta/url', (req, res) => {
     const redirectUri = `${APP_URL}/api/auth/meta/callback`;
     const scopes = [
-      'instagram_basic',
+      'instagram_business_basic',
       'instagram_manage_messages',
       'pages_show_list',
       'pages_read_engagement',
