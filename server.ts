@@ -314,8 +314,8 @@ Helpful Copilot Response:`;
   // 3d. 1-Click Meta OAuth: Get Authorization URL
   app.get('/api/auth/meta/url', (req, res) => {
     const redirectUri = `${APP_URL}/api/auth/meta/callback`;
-    const scopes = 'email';
-    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    const configId = process.env.META_CONFIG_ID || '1615587359925402';
+    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&config_id=${configId}&response_type=code&override_default_response_type=true`;
     res.json({ url: authUrl });
   });
 
