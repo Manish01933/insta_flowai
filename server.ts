@@ -12,7 +12,7 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'openrouter/free';
-const META_APP_ID = process.env.META_APP_ID || '1571980907590907';
+const META_APP_ID = process.env.META_APP_ID || '1226093629512976';
 const META_APP_SECRET = process.env.META_APP_SECRET || '';
 const APP_URL = process.env.APP_URL || 'https://instaflowai-production-7ebc.up.railway.app';
 
