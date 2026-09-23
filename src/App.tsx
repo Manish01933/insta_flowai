@@ -63,7 +63,14 @@ export default function App() {
           'meta_oauth_window', 
           `width=${width},height=${height},top=${top},left=${left}`
         );
-        if (!popup) {
+        if (popup) {
+          const checkTimer = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkTimer);
+              setOauthLoading(false);
+            }
+          }, 800);
+        } else {
           window.location.href = data.url;
         }
       } else {
