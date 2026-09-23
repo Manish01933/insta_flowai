@@ -314,13 +314,7 @@ Helpful Copilot Response:`;
   // 3d. 1-Click Meta OAuth: Get Authorization URL
   app.get('/api/auth/meta/url', (req, res) => {
     const redirectUri = `${APP_URL}/api/auth/meta/callback`;
-    const scopes = [
-      'instagram_business_basic',
-      'instagram_business_manage_messages',
-      'pages_show_list',
-      'pages_read_engagement',
-      'pages_manage_metadata'
-    ].join(',');
+    const scopes = 'email';
     const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
     res.json({ url: authUrl });
   });
