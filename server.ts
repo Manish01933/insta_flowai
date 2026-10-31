@@ -79,6 +79,12 @@ async function callOpenRouter(prompt: string): Promise<string> {
       max_tokens: 500,
     }),
   });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`OpenRouter API error (${res.status}): ${body.slice(0, 200)}`);
+  }
+
   const data = await res.json();
   return data?.choices?.[0]?.message?.content?.trim() || '';
 }
@@ -212,6 +218,13 @@ async function startServer() {
                     access_token: pageConfig.accessToken
                   })
                 });
+
+                if (!sendRes.ok) {
+                  const sendBody = await sendRes.text().catch(() => '');
+                  console.error('Meta Send API returned HTTP', sendRes.status, sendBody.slice(0, 200));
+                  continue;
+                }
+
                 const sendData = await sendRes.json();
                 console.log('Meta Send API response for message reply:', sendData);
               } catch (metaSendErr) {
