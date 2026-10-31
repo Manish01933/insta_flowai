@@ -479,7 +479,11 @@ export function buildTenantOverview(lang: Lang): TenantOverview {
       },
       instagram: {
         connected: Boolean(connection?.isConnected),
-        username: connection?.instagramUsername,
+        // `liveUsername` is the handle a successful live `/me` check learned. It is
+        // written by `markConnectionLiveCheck` but nothing read it, so accounts whose
+        // connect-time username was empty rendered as "handle nahi mila" even though
+        // the server already knew the handle.
+        username: connection?.instagramUsername || connection?.liveUsername,
         accountId: connection?.instagramAccountId,
         status: connection?.status || 'DISCONNECTED',
         connectedAt: connection?.connectedAt,

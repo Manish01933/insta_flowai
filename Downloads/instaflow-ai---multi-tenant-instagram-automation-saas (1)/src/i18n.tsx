@@ -945,7 +945,7 @@ const STRINGS: Record<string, [string, string]> = {
   'ops.guardRefused.why': ['Ye jaan-boojh kar hai, kharabi nahi: jin accounts se ye DM aayi wo khud InstaFlow se jude hue hain, aur do jude hue accounts aapas me reply karte reh jaate hain. Isliye guard rok deta hai. Aise test se jawab kabhi nahi aayega — bot ko asli customer ke DM se test karo, ya “Bot ka self-test” dabao.', 'This is deliberate, not a fault: the accounts behind these DMs are themselves connected to InstaFlow, and two connected accounts reply to each other forever. The guard stops that. A test like this will never produce an answer — test with a real customer DM, or press “Run the bot self-test”.'],
   'ops.guardRefused.others': ['…aur {count} aur.', '…and {count} more.'],
   'ops.fix.label.ALREADY_OK': ['Sab theek hai — token Meta accept kar raha hai.', 'All good — Meta accepts this token.'],
-  'ops.fix.label.RECONNECT_NEEDED': ['Account juda hai par Meta token mana kar raha hai. Customer ko dobara connect karna hoga.', 'Connected, but Meta refuses the token. The customer has to reconnect.'],
+  'ops.fix.label.RECONNECT_NEEDED': ['Account juda hai par us par koi bhi request kaam nahi karti. Customer ko dobara connect karna hoga — asli wajah neeche di hai.', 'Connected, but nothing can be sent with this account. The customer has to reconnect — the real reason is below.'],
   'ops.fix.label.REVERIFY_NEEDED': ['Juda hai, par abhi tak live check nahi hua (ya purana hai). “Fix karo” Meta se dobara poochta hai.', 'Connected, but never live-checked (or long ago). “Fix” asks Meta again.'],
   'ops.fix.label.SERVER_NOT_READY': ['Server ki config adhoori hai — tab tak koi bhi customer connect nahi kar sakta.', 'This server cannot complete a connect yet — no customer can, until it is fixed.'],
   'ops.fix.label.TRY_FAILED': ['Customer ne try kiya aur Meta ne error diya. Meta ka asli shabd neeche hain.', 'The customer tried and Meta returned an error. Meta’s own words are below.'],
@@ -974,6 +974,13 @@ const STRINGS: Record<string, [string, string]> = {
     'Instagram password badla gaya, isliye token cancel hua',
     'An Instagram password change cancelled the token',
   ],
+  // Meta ne yahan KUCH nahi kaha: token store se decrypt hi nahi hua, to koi call gayi hi
+  // nahi. Isliye ise `UNKNOWN` ("Meta ne mana kiya") me na girao — warna owner customer ko
+  // galat wajah batakar reconnect karwata hai aur asli key ka masla chhupa reh jata hai.
+  'ops.fix.causeName.DECRYPT_FAILED': [
+    'Token decrypt nahi ho raha — ye server ki ENCRYPTION_MASTER_KEY ka issue hai, Meta ne token reject nahi kiya',
+    'The stored token cannot be decrypted — this is the server’s ENCRYPTION_MASTER_KEY, Meta never rejected anything',
+  ],
   'ops.fix.causeName.UNKNOWN': [
     'Wajah saaf nahi — Meta ne sirf mana kiya',
     'Not clear — Meta only refused',
@@ -993,6 +1000,10 @@ const STRINGS: Record<string, [string, string]> = {
   'ops.fix.causeStep.PASSWORD_CHANGED': [
     'KYA HUA: Instagram ka password badalne se Meta ne khud token cancel kar diya (ye Meta ka security behaviour hai, galti nahi).\nCustomer sirf dobara Reconnect kare — naya token mil jaayega, aur naya token 60 din chalta hai.',
     'WHAT HAPPENED: an Instagram password change made Meta cancel the token itself — that is Meta’s own security behaviour, not a mistake.\nThe customer just reconnects; a fresh token is issued and it lasts about 60 days.',
+  ],
+  'ops.fix.causeStep.DECRYPT_FAILED': [
+    'KYA HUA: store me pada token decrypt hi nahi hua, isliye Meta se poocha hi nahi gaya. Ye customer ka token Meta ne reject nahi kiya — server ki ENCRYPTION_MASTER_KEY badal gayi, hat gayi, ya galat hai. Customer ki galti nahi hai aur usko token ke baare me kuch batane ki zaroorat nahi.\n1) Railway → Variables me ENCRYPTION_MASTER_KEY maujood hai ya nahi — sirf naam dekho, value kisi ko na bhejo aur na badlo. 2) Customer se dashboard par “Reconnect Account” karwao: naya token abhi ki key se encrypt hoga, isliye ye error chala jaayega. 3) Agar key galti se badal gayi thi to pehle use wapas theek karo, warna baaki accounts bhi aise hi tootte rahenge — aur kabhi bhi sabko ek saath reconnect karwana pad sakta hai.',
+    'WHAT HAPPENED: the token in the store never decrypted, so Meta was never asked. Meta did not reject this token — the server’s ENCRYPTION_MASTER_KEY changed, is missing, or is wrong. This is not the customer’s mistake and they do not need to be told anything about tokens.\n1) In Railway → Variables check whether ENCRYPTION_MASTER_KEY exists — look at the name only; never send or change the value. 2) Have the customer press “Reconnect Account” on the dashboard: the fresh token is encrypted with the current key, so this error disappears. 3) If the key did change by accident, fix it first — otherwise other accounts will keep breaking the same way, and you may end up reconnecting everyone at once.',
   ],
   'ops.fix.causeStep.UNKNOWN': [
     'Meta ne token mana kiya par wajah saaf nahi likhi.\nPehle customer se seedha Reconnect karwao — zyadatar yahi kaam kar jaata hai. Error wahi rahe to neeche wala Meta ka poora message bhej dena.',
@@ -1129,7 +1140,10 @@ const STRINGS: Record<string, [string, string]> = {
   'ops.detail.checkToken': ['Ab check karo', 'Check now'],
   'ops.detail.checking': ['Check ho raha hai…', 'Checking…'],
   'ops.live.OK': ['theek hai — Meta ne token accept kiya', 'fine — Meta accepted the token'],
-  'ops.live.NEEDS_REAUTH': ['Meta token mana kar raha hai — customer ko dobara connect karna hoga', 'Meta refuses this token — the customer has to reconnect'],
+  // Deliberately does NOT name Meta: `NEEDS_REAUTH` is also written when the stored
+  // token could not be decrypted, and in that case Meta was never asked. The precise
+  // reason lives in the Fix panel (`ops.fix.causeName.*`), which this row has no room for.
+  'ops.live.NEEDS_REAUTH': ['is account ka token kaam nahi kar raha — customer ko dobara connect karna hoga', 'this account’s token is unusable — the customer has to reconnect'],
   'ops.live.UNREACHABLE': ['pata nahi chala (Meta tak nahi pahuncha)', 'unknown — could not reach Meta'],
   'ops.live.NOT_CONNECTED': ['koi connection nahi', 'no connection'],
   'ops.live.UNKNOWN': ['abhi check nahi hua', 'not checked yet'],

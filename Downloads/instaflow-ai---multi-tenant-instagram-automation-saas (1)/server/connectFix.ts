@@ -83,6 +83,16 @@ export type TokenRefusalCause =
   | 'TOKEN_EXPIRED'
   /** Instagram password change invalidated the token. Just reconnect. */
   | 'PASSWORD_CHANGED'
+  /**
+   * The stored token never decrypted, so Meta was never asked at all.
+   *
+   * This is a server-side key problem (`ENCRYPTION_MASTER_KEY` changed, removed or
+   * wrong), not a Meta verdict, and it used to fall through to `UNKNOWN` — which the
+   * console renders as "Meta only refused". Reconnect still repairs the account (the
+   * new token is encrypted with the current key), but the owner was being sent to
+   * blame Meta for a failure Meta never saw.
+   */
+  | 'DECRYPT_FAILED'
   /** Meta refused but said nothing the parser recognises. */
   | 'UNKNOWN';
 
@@ -110,6 +120,13 @@ export function classifyTokenRefusal(
   const appIdIsOurs = named ? ours.includes(named) : false;
   const lower = text.toLowerCase();
   const base = { appId: named, appIdIsOurs };
+
+  // Checked before every Meta wording: `connectionHealth` writes this detail when
+  // decryption fails, and in that case no request reached Meta, so none of Meta's
+  // sentences can apply.
+  if (lower.includes('could not be decrypted')) {
+    return { cause: 'DECRYPT_FAILED', appId: null, appIdIsOurs: false };
+  }
 
   if (lower.includes('has not authorized application') || lower.includes('has not authorized')) {
     // No id named ⇒ nothing suggests a foreign app, so treat it as our own grant.
@@ -209,15 +226,23 @@ export function buildConnectFixFacts(input: {
   const attemptUsername = getLastAttemptUsername(tenantId);
   const identity = getOAuthAppIdentity();
 
+  // `liveUsername` is what a successful live check learned from Meta's `/me`. It is
+  // written on every check but was never read, so an account whose connect-time
+  // username was missing showed as "handle nahi mila" — while the server did know it.
   const handle =
-    connection.instagramUsername || request?.username || attemptUsername || null;
-  const handleSource: ConnectFixFacts['handleSource'] = connection.instagramUsername
-    ? 'connection'
-    : request?.username
-    ? 'testerRequest'
-    : attemptUsername
-    ? 'attempt'
-    : null;
+    connection.instagramUsername ||
+    connection.liveUsername ||
+    request?.username ||
+    attemptUsername ||
+    null;
+  const handleSource: ConnectFixFacts['handleSource'] =
+    connection.instagramUsername || connection.liveUsername
+      ? 'connection'
+      : request?.username
+      ? 'testerRequest'
+      : attemptUsername
+      ? 'attempt'
+      : null;
 
   const routedTo = connection.instagramAccountId
     ? getTenantByInstagramAccountId(connection.instagramAccountId)?.tenantId || null
