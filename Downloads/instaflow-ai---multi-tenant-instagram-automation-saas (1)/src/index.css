@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* ── Onboarding: animated gradient accent (Management heading) ──
+   Single, lightweight animation. Full stops under prefers-reduced-motion. */
+@keyframes onboarding-gradient-shift {
+  0% { background-position: 0% 0; }
+  100% { background-position: 0% 100%; }
+}
+
+.onboarding-gradient-accent {
+  background: linear-gradient(
+    180deg,
+    #7c3aed 0%,
+    #8b5cf6 30%,
+    #6366f1 55%,
+    #10b981 100%
+  );
+  background-size: 100% 200%;
+  animation: onboarding-gradient-shift 6s ease-in-out infinite alternate;
+}
+
+/* Any step or badge animation dies down for reduced-motion users. */
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-gradient-accent,
+  .onboarding-current-pulse,
+  .onboarding-required-pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Onboarding: current-step pulse (purple, gentle) ── */
+@keyframes onboarding-current-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.08); }
+}
+
+.onboarding-current-pulse {
+  animation: onboarding-current-pulse 2.4s ease-in-out infinite;
+}
+
+/* ── Onboarding: REQUIRED badge pulse (very soft, once every few seconds) ── */
+@keyframes onboarding-required-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+.onboarding-required-pulse {
+  animation: onboarding-required-pulse 2.8s ease-in-out infinite;
+}
+
+/* ── Onboarding explainer reel: each DM-life step slides in when it becomes
+   active. The component remounts the typed JSX per step, so plain one-shot
+   keyframes are enough — no staggered timelines. */
+@keyframes reel-step-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reel-step {
+  animation: reel-step-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-step {
+    animation: none !important;
+  }
+}
+
+/* ── Purple highlight heading with orbiting sparkle lights ──
+   Applied to main section headings on the Knowledge Base & AI Persona tab.
+   The heading gets a royal-purple background, white text, rounded corners and
+   a soft glow. A tiny lavender dot orbits the rounded border continuously.
+   Disabled entirely under prefers-reduced-motion. */
+@keyframes orbit-sparkle {
+  0% { transform: rotate(0deg) translate(10px) rotate(0deg); }
+  100% { transform: rotate(360deg) translate(10px) rotate(-360deg); }
+}
+
+.purple-highlight-heading {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  background: #6d28d9;
+  color: #f3e8ff;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(109, 40, 217, 0.35);
+  margin-bottom: 1rem;
+  z-index: 0;
+}
+
+/* Inner content sits above the glowing pseudo-layer so text stays crisp. */
+.purple-highlight-heading > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Soft outer glow behind the heading card. */
+.purple-highlight-heading::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #c084fc, #a78bfa, #8b5cf6);
+  filter: blur(8px);
+  opacity: 0.55;
+  z-index: -1;
+}
+
+/* Orbiting tiny light along the rounded border. */
+.purple-highlight-heading::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e9d5ff;
+  box-shadow: 0 0 8px #e9d5ff, 0 0 14px #c084fc;
+  transform: translateX(-50%);
+  animation: orbit-sparkle 4s linear infinite;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .purple-highlight-heading::after {
+    animation: none;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px #e9d5ff;
+  }
+  .purple-highlight-heading {
+    box-shadow: 0 0 8px rgba(109, 40, 217, 0.25);
+  }
+  .purple-highlight-heading::before {
+    opacity: 0.3;
+  }
+}

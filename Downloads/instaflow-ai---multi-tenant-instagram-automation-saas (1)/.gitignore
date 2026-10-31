@@ -1,0 +1,22 @@
+node_modules/
+build/
+dist/
+.tools/
+coverage/
+.DS_Store
+*.log
+
+# Encrypted tenant connections written at runtime (contains OAuth tokens).
+# Never commit this: it is per-environment state, not source.
+.data/
+
+.env*
+!.env.example
+
+# Railway CLI token that a deploy may be run with. `railway up` follows
+# .gitignore, so this pattern is what keeps the token out of the build archive.
+railway-token.txt
+*.railway-token
+
+# rescue.cmd ka run-report (har run me dobara banta hai).
+rescue-report.txt
