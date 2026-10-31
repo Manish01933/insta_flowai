@@ -413,6 +413,11 @@ async function sendInstagramLoginMessage(
       }),
     });
 
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      return { success: false, error: `Instagram Login send returned HTTP ${res.status}: ${body.slice(0, 200)}` };
+    }
+
     const data = await res.json();
     if (data.error) {
       console.warn('Instagram Login send error on /me/messages:', data.error);
@@ -549,6 +554,11 @@ export async function sendInstagramMessage(
       }),
     });
 
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      return { success: false, error: `Meta send returned HTTP ${res.status}: ${body.slice(0, 200)}` };
+    }
+
     const data = await res.json();
 
     if (data.error) {
@@ -566,6 +576,12 @@ export async function sendInstagramMessage(
           message: { text: messageText },
         }),
       });
+
+      if (!fbRes.ok) {
+        const fbBody = await fbRes.text().catch(() => '');
+        return { success: false, error: `Meta fallback /me/messages returned HTTP ${fbRes.status}: ${fbBody.slice(0, 200)}` };
+      }
+
       const fbData = await fbRes.json();
       if (fbData.error) {
         return { success: false, error: formatMetaError(fbData.error) };

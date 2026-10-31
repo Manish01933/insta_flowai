@@ -5495,10 +5495,6 @@ async function startServer() {
               updateTrace(igAccountId, senderId, { stage: 'send-failed', tenantId, send: { status: 'failed', errorCategory: 'auth', errorDetail: 'token decryption failed', retryable: false }, note: 'token decrypt failed' }, trace);
               continue;
             }
-            if (!decryptedToken) {
-              console.error(`Cannot send reply: Token decryption failed for tenant ${tenantId}`);
-              continue;
-            }
 
             // 4b. Billing gate. decideAccess only blocks once payments are
             // actually configured, so turning billing on can never stop a bot

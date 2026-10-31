@@ -97,7 +97,8 @@ globalThis.fetch = (async (_url: any, init: any) => {
   );
 }) as any;
 
-process.env.OPENROUTER_API_KEY = 'sk-or-v1-test-key';
+process.env.OMNIROUTE_API_KEY = 'omni-test-key';
+process.env.OMNIROUTE_MODEL = 'test-model';
 
 // Mirror the webhook's prompt assembly exactly.
 const wireResultA = await generateAiReply({
@@ -116,7 +117,7 @@ check('provider request carries the KB-miss marker instruction', systemMsgA.incl
 check('provider request carries the current question', reqA?.messages?.some((m: any) => m.role === 'user' && m.content === 'What are your opening hours?'));
 check('provider request carries recent conversation context (TEST 7)', reqA?.messages?.some((m: any) => m.role === 'assistant' && m.content === 'Hello! How can I help?'));
 check('provider request does not leak the marker to the user turn', !JSON.stringify(reqA?.messages?.filter((m: any) => m.role !== 'system') || []).includes(KB_MISS_MARKER));
-check('real generation reports provider openrouter', wireResultA.provider === 'openrouter');
+check('real generation reports provider omniroute', wireResultA.provider === 'omniroute');
 check('real generation passes the reply through unchanged', wireResultA.reply === 'Salon A is open 10 AM to 8 PM.');
 check('attempts recorded for diagnostics', Array.isArray(wireResultA.attempts) && wireResultA.attempts[0]?.ok === true);
 
@@ -135,7 +136,7 @@ check('marker-only reply becomes empty (webhook then uses fallback)', extractKbM
 check('clean reply passes through', extractKbMiss('We are open 10 to 8').missed === false);
 
 // ============================================================ TEST 6: PROVIDER FAILURE
-// Every provider fails (no Gemini key, stubbed OpenRouter returns 500) →
+// Every provider fails (no Gemini key, stubbed OmniRoute returns 500) →
 // the canned fallback, tagged 'fallback', no throw, no duplicate-risk text.
 globalThis.fetch = (async () => new Response('upstream exploded', { status: 500 })) as any;
 const failed = await generateAiReply({
