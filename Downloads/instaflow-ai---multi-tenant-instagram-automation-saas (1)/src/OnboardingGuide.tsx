@@ -319,6 +319,24 @@ export function OnboardingGuide({
           <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">
             {t('guide.progress', { done: progress.done, total: progress.total })}
           </span>
+          {/* "Continue setup" opens the next genuinely incomplete step, instead
+              of leaving the customer to guess which row to click. */}
+          {current && (
+            <button
+              type="button"
+              onClick={() => {
+                setManual(current);
+                window.setTimeout(() => {
+                  document
+                    .getElementById(`guide-step-${current}`)
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+              }}
+              className="text-[11px] font-semibold text-white bg-[#7c3aed] hover:bg-[#6d28d9] px-3 py-1.5 rounded-lg"
+            >
+              {t('guide.continueSetup')}
+            </button>
+          )}
           <button
             onClick={() => onHide(true)}
             className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg border border-slate-200"
@@ -354,7 +372,9 @@ export function OnboardingGuide({
                   : isCurrent
                     ? 'border-purple-300 bg-purple-50/40'
                     : 'border-slate-200 bg-white'
-              } ${isFocused ? 'ring-2 ring-purple-400 ring-offset-2 border-purple-400' : ''}`}
+              } ${isFocused ? 'ring-2 ring-purple-400 ring-offset-2 border-purple-400' : ''} ${
+                !isDone && isCurrent && !isOpen ? 'onboarding-required-pulse' : ''
+              }`}
             >
               <button
                 type="button"

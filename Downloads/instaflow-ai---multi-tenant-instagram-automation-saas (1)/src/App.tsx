@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
+import { ChevronDown, 
   Instagram, MessageSquare, BookOpen, BarChart3, Settings, 
   ShieldCheck, Zap, UserCheck, UserX, Send, Plus, Trash2, UserPlus,
   CheckCircle2, AlertCircle, Lock, Key, RefreshCw, LogOut,
@@ -8,6 +8,8 @@ import {
   Users,
 } from 'lucide-react';
 import { SidebarPanel } from './sidebar';
+import { KbDraftAssistant } from './KbDraftAssistant';
+import { isRepliesActive } from './onboarding';
 import { KnowledgeBaseDescriptionHighlight, BookingPagePanel, BookingLinkCard, RequiredFieldIndicator, FeatureHighlights, OnboardingVideo } from './onboardingFeatures';
 import { auth, db } from './firebase';
 import { apiFetch } from './api';
@@ -389,6 +391,8 @@ export default function App() {
   // while the webhook ignored them, actively wrong once it used them.
   type KnowledgeItemState = { id: string; title: string; content: string; category?: string };
   const [kbItems, setKbItems] = useState<KnowledgeItemState[]>([]);
+  const [kbAssistantOpen, setKbAssistantOpen] = useState(false);
+  const [kbAssistantTrigger, setKbAssistantTrigger] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   // Which document is open for editing, if any. Until now a document could only
@@ -1725,39 +1729,45 @@ export default function App() {
     );
   }
 
-  return (      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+  // "All steps done" is not evidence that a real DM was answered. Only a live
+  // token verified against Meta may claim active replies; anything else says so.
+  const igSignals = onboarding?.signals.instagram;
+  const repliesVerified = isRepliesActive(igSignals);
+
+  return (
+    <div className="if-dark min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans">
       {/* Shipped a fix but the owner still sees the old screen? This banner is
           the difference between "your deploy did nothing" and "reload". */}
       <StaleBuildBanner />
 
       {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-xs">
+      <header className="bg-[#111A2E] border-b border-[#243049] sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
             <Instagram className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 text-base">InstaFlow AI</span>
-              <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-2 py-0.5 rounded-full">SaaS Pro</span>
+              <span className="font-bold text-white text-base">InstaFlow AI</span>
+              <span className="bg-[#7C3AED]/20 text-[#ddd6fe] text-xs font-semibold px-2 py-0.5 rounded-full">SaaS Pro</span>
             </div>
             {profile?.username && (
-              <p className="text-xs font-semibold text-slate-700">@{profile.username}</p>
+              <p className="text-xs font-semibold text-[#c4cddd]">@{profile.username}</p>
             )}
-            <p className="text-xs text-slate-500">Tenant ID: {tenantId}</p>
+            <p className="text-xs text-[#8b93a8]">Tenant ID: {tenantId}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={handleOpenDiagnostics}
-            className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 border border-slate-200 px-3 py-1.5 rounded-lg transition"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-[#c4cddd] hover:text-white bg-[#18243A] hover:bg-[#243049] border border-[#243049] px-3 py-1.5 rounded-lg transition"
           >
-            <Activity className="w-3.5 h-3.5 text-purple-600" />
+            <Activity className="w-3.5 h-3.5 text-[#a855f7]" />
             Meta Health & Diagnostics
           </button>
 
-          <div className="hidden md:flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium px-3 py-1.5 rounded-lg">
+          <div className="hidden md:flex items-center gap-2 bg-[rgba(34,197,94,0.12)] border border-[#22C55E]/40 text-[#86efac] text-xs font-medium px-3 py-1.5 rounded-lg">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
             AES-256-GCM Zero-Knowledge Encryption
           </div>
@@ -1784,7 +1794,7 @@ export default function App() {
               if (user) signOut(auth);
               setIsDemoMode(false);
             }}
-            className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl transition"
+            className="flex items-center gap-1.5 text-xs font-medium text-[#c4cddd] hover:text-white bg-[#18243A] hover:bg-[#243049] px-3 py-2 rounded-xl transition"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -2301,14 +2311,42 @@ export default function App() {
           {/* Onboarding knowledge-base description highlight source: src/onboardingFeatures.tsx KnowledgeBaseDescriptionHighlight */}
           {/* Onboarding features source: src/onboardingFeatures.tsx BookingPagePanel RequiredFieldIndicator */}
           {onboarding?.progress.allDone && (
-            <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-xs">
+            <div
+              className={`mb-6 rounded-2xl border p-5 shadow-xs ${repliesVerified ? 'border-[#22C55E]/40 bg-[rgba(34,197,94,0.10)]' : 'border-[#F59E0B]/40 bg-[rgba(245,158,11,0.10)]'}`}
+            >
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700">
+                <div
+                  className={`mt-0.5 inline-flex items-center justify-center w-10 h-10 rounded-full ${repliesVerified ? 'bg-[rgba(34,197,94,0.18)] text-[#86efac]' : 'bg-[rgba(245,158,11,0.18)] text-[#fde047]'}`}
+                >
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-semibold text-emerald-900">All onboarding steps complete</p>
-                  <p className="text-xs text-emerald-800 mt-1">Your business is fully set up — the AI bot can now answer DMs using your knowledge base and respond to your connected Instagram account.</p>
+                  <p className={`font-semibold ${repliesVerified ? 'text-[#86efac]' : 'text-[#fde047]'}`}>
+                    {repliesVerified ? 'AI Replies Active' : 'Complete setup — live replies need verification'}
+                  </p>
+                  <p className={`text-xs mt-1 ${repliesVerified ? 'text-[#86efac]/80' : 'text-[#fde047]/80'}`}>
+                    {repliesVerified
+                      ? 'Every setup step is done, the Instagram token was verified against Meta and a real DM reply test succeeded. The bot answers real DMs from the knowledge documents saved above.'
+                      : 'Every setup step is done, but a live reply has not been verified on this account. Send a DM from another account and confirm the bot answers before treating replies as active.'}
+                  </p>
+                  {/* Six honest sub-checks — each one is a fact the server holds, so
+                      none of them can be green on their own. A missing check is
+                      named, never hidden behind a green tick. */}
+                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {([
+                      ['Plan & entitlement', onboarding.signals.plan.allowed],
+                      ['Instagram connected', onboarding.signals.instagram.connected],
+                      ['Token verified', Boolean(onboarding.signals.instagram.lastVerifiedAt) && !onboarding.signals.instagram.needsReconnect],
+                      ['Contact + consent', Boolean(onboarding.signals.contact?.contactPerson) && Boolean(onboarding.signals.contact?.whatsappNumber) && Boolean(onboarding.signals.contact?.consentGiven)],
+                      ['Knowledge Base ready', onboarding.signals.knowledge.documents > 0],
+                      ['DM reply test', Boolean(onboarding.signals.simulator.testedAt)],
+                    ] as [string, boolean][]).map(([label, ok]) => (
+                      <div key={label} className={`flex items-center gap-1.5 text-[11px] ${ok ? 'text-[#86efac]' : 'text-[#fde047]'}`}>
+                        {ok ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
+                        <span className="truncate">{label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -2519,29 +2557,20 @@ export default function App() {
 
               {/* Plan & billing — what this tenant bought, and how to buy more */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs lg:col-span-2 space-y-4">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-600">
-                    <Zap className="w-3.5 h-3.5 text-purple-600" />
+                <div className="bg-[#111A2E] rounded-2xl p-6 border border-[#243049] shadow-xs lg:col-span-2 space-y-4">
+
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#a855f7]" />
                     Plan &amp; billing
                     {planState?.plan && (
-                      <span className="ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                        {planState.plan.name}
-                      </span>
-                    )
-                  }
-                </div>
-                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-purple-600" />
-                    Plan &amp; billing
-                    {planState?.plan && (
-                      <span className="ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                      <span className="ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#7C3AED]/25 text-[#ddd6fe]">
                         {planState.plan.name}
                       </span>
                     )}
                   </h3>
 
-                  <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-1">
-                    <p className="text-xs text-slate-600">
+                  <div className="bg-[#18243A] rounded-xl border border-[#243049] p-4 space-y-1">
+                    <p className="text-xs text-[#c4cddd]">
                       {planState?.subscription ? (
                         <>
                           Status: <strong className="uppercase">{planState.subscription.status}</strong>
@@ -2624,7 +2653,7 @@ export default function App() {
                             server's plan catalog (tagline + features), so the card
                             and the entitlements behind it can never drift apart. */}
                         {plan.tagline && (
-                          <p className="text-[11px] text-slate-500">{plan.tagline}</p>
+                          <p className="text-[11px] text-[#8b93a8]">{plan.tagline}</p>
                         )}
                         {Array.isArray(plan.features) && plan.features.length > 0 && (
                           <ul className="space-y-1 mt-1 mb-1 flex-1">
@@ -2665,9 +2694,9 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Main Account Connection Card */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs md:col-span-2 space-y-6">
+                <div className="bg-[#111A2E] rounded-2xl p-6 border border-[#243049] shadow-xs md:col-span-2 space-y-6">
                   {/* Account Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#243049] gap-4">
                     <div className="flex items-center gap-4">
                       {connection.profilePictureUrl ? (
                         <img 
@@ -2684,18 +2713,18 @@ export default function App() {
                       )}
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-slate-900 text-lg">
+                          <h3 className="font-bold text-white text-lg">
                             {connection.isConnected 
                               ? `@${connection.instagramUsername}` 
                               : 'Instagram Professional Account'}
                           </h3>
                           {connection.isConnected && (
-                            <span className="bg-purple-100 text-purple-700 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            <span className="bg-[#7C3AED]/25 text-[#ddd6fe] text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
                               Verified
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-[#8b93a8] mt-0.5">
                           {connection.isConnected 
                             ? `Instagram Business Account ID: ${connection.instagramAccountId}` 
                             : 'Instagram is not connected to Meta Graph API'}
@@ -2708,22 +2737,22 @@ export default function App() {
                         /* Connected, but Meta refuses the token for this app — the
                            bot cannot answer. Saying "Connected" here was how a
                            silent bot looked healthy. */
-                        <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-rose-200">
+                        <span className="inline-flex items-center gap-1.5 bg-[rgba(239,68,68,0.14)] text-[#fda4af] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#EF4444]/40">
                           <AlertCircle className="w-3.5 h-3.5" />
                           Reconnect needed
                         </span>
                       ) : connection.isConnected ? (
-                        <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-emerald-200 shadow-xs">
+                        <span className="inline-flex items-center gap-1.5 bg-[rgba(34,197,94,0.14)] text-[#86efac] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#22C55E]/40 shadow-xs">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                           Connected
                         </span>
                       ) : connection.status === 'ERROR' ? (
-                        <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-rose-200">
+                        <span className="inline-flex items-center gap-1.5 bg-[rgba(239,68,68,0.14)] text-[#fda4af] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#EF4444]/40">
                           <AlertCircle className="w-3.5 h-3.5" />
                           Connection Error
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-200">
+                        <span className="inline-flex items-center gap-1.5 bg-[rgba(245,158,11,0.14)] text-[#fde047] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#F59E0B]/40">
                           <span className="w-2 h-2 rounded-full bg-amber-400"></span>
                           Disconnected
                         </span>
@@ -2739,12 +2768,12 @@ export default function App() {
                            connected by another account here, and an Instagram account
                            can only reach one bot. Saying "Connected" with no caveat is
                            what made this look like a broken bot. */
-                        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-1">
-                          <p className="text-sm font-semibold text-amber-900 flex items-center gap-2">
+                        <div className="bg-[rgba(245,158,11,0.12)] border border-[#F59E0B]/40 rounded-xl px-4 py-3 space-y-1">
+                          <p className="text-sm font-semibold text-[#fde047] flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4" />
                             {t('shared.title')}
                           </p>
-                          <p className="text-xs text-amber-800 leading-relaxed">{t('shared.body')}</p>
+                          <p className="text-xs text-[#fcd34d] leading-relaxed">{t('shared.body')}</p>
                         </div>
                       )}
                       {connection.liveState === 'NEEDS_REAUTH' && (
@@ -2753,10 +2782,10 @@ export default function App() {
                             <AlertCircle className="w-4 h-4" />
                             Instagram is refusing this account's token — the bot cannot reply
                           </p>
-                          <p className="text-xs text-rose-800 leading-relaxed">
+                          <p className="text-xs text-[#fda4af] leading-relaxed">
                             Meta answered: <span className="font-mono">{connection.liveDetail || 'access token is not valid for this app'}</span>
                           </p>
-                          <p className="text-xs text-rose-800 leading-relaxed">
+                          <p className="text-xs text-[#fda4af] leading-relaxed">
                             This usually means the app was removed from Instagram
                             (Settings → Apps and websites) or the connect happened on a
                             different Meta app than this website uses. Press{' '}
@@ -2766,17 +2795,17 @@ export default function App() {
                             wrong app and connecting will keep failing until it is fixed.
                           </p>
                           {connection.liveCheckedAt && (
-                            <p className="text-[11px] text-rose-500">
+                            <p className="text-[11px] text-[#fb7185]">
                               Checked {new Date(connection.liveCheckedAt).toLocaleString()}
                             </p>
                           )}
                         </div>
                       )}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Instagram Business ID</span>
+                        <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
+                          <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Instagram Business ID</span>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-mono font-medium text-slate-800">{connection.instagramAccountId}</span>
+                            <span className="text-xs font-mono font-medium text-white">{connection.instagramAccountId}</span>
                             <button 
                               onClick={() => copyToClipboard(connection.instagramAccountId || '', 'igId')}
                               className="text-slate-400 hover:text-slate-700"
@@ -2786,29 +2815,68 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Linked Facebook Page</span>
+                        <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
+                          <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Linked Facebook Page</span>
                           <span className="text-xs font-medium text-slate-800 block">
                             {connection.facebookPageName || 'Connected via Meta OAuth'} 
                             {connection.facebookPageId && <span className="text-slate-400 text-[11px] block font-mono">ID: {connection.facebookPageId}</span>}
                           </span>
                         </div>
 
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Token Security Status</span>
-                          <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+                        <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
+                          <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Token Security Status</span>
+                          <div className="flex items-center gap-1.5 text-xs text-[#86efac] font-medium">
                             <Lock className="w-3.5 h-3.5" />
                             Active (AES-256-GCM Encrypted)
                           </div>
                         </div>
 
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Last Meta API Verification</span>
-                          <span className="text-xs text-slate-700 block">
+                        <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
+                          <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Last Meta API Verification</span>
+                          <span className="text-xs text-[#c4cddd] block">
                             {connection.lastVerifiedAt ? new Date(connection.lastVerifiedAt).toLocaleString() : 'Just now'}
                           </span>
                         </div>
                       </div>
+
+                      {/* Advanced connection details — collapsed by default. The
+                          technical facts a customer needs (handle, ids, token
+                          status, last verification) stay visible above; the
+                          developer-level configuration belongs in an Admin /
+                          Developer Help section and is never asked of an ordinary
+                          customer unless something is genuinely wrong. */}
+                      <details className="mt-4 rounded-xl border border-[#243049] bg-[#111A2E] group">
+                        <summary className="cursor-pointer list-none flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#c4cddd] hover:text-white">
+                          <span className="flex items-center gap-2">
+                            <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
+                            Advanced connection details
+                          </span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8b93a8] group-open:hidden">Show</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8b93a8] hidden group-open:inline">Hide</span>
+                        </summary>
+                        <div className="px-4 pb-4 pt-1 space-y-2 text-xs">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[#8b93a8]">Instagram username</span>
+                            <span className="font-mono text-white truncate">{connection.instagramUsername || '—'}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[#8b93a8]">Instagram Business Account ID</span>
+                            <span className="font-mono text-white truncate">{connection.instagramAccountId || '—'}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[#8b93a8]">Linked Facebook Page</span>
+                            <span className="text-white truncate">{connection.facebookPageName || 'Connected via Meta OAuth'}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[#8b93a8]">Token security status</span>
+                            <span className="text-[#86efac] font-medium">Active (AES-256-GCM Encrypted)</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[#8b93a8]">Last successful Meta verification</span>
+                            <span className="text-white">{connection.lastVerifiedAt ? new Date(connection.lastVerifiedAt).toLocaleString() : 'Not yet verified'}</span>
+                          </div>
+                        </div>
+                      </details>
 
                       {/* Connection Actions */}
                       <div className="pt-4 flex flex-wrap items-center gap-3">
@@ -2865,7 +2933,7 @@ export default function App() {
                               <span className="shrink-0 w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold flex items-center justify-center mt-0.5">1</span>
                               <div className="space-y-1.5">
                                 <p className="text-xs font-semibold text-slate-800">{t('guide.step1Title')}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-xs text-[#8b93a8] leading-relaxed">
                                   {t('guide.step1a')} <strong>Business</strong> {t('guide.step1or')} <strong>Creator</strong>{' '}
                                   {t('guide.step1link')} <strong>Facebook Page</strong> {t('guide.step1tail')}
                                 </p>
@@ -2876,7 +2944,7 @@ export default function App() {
                               <span className="shrink-0 w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold flex items-center justify-center mt-0.5">2</span>
                               <div className="space-y-1.5">
                                 <p className="text-xs font-semibold text-slate-800">{t('guide.step2Title')}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-xs text-[#8b93a8] leading-relaxed">
                                   {t('guide.step2a')}
                                   (<code className="font-mono">My_business_bot</code>){t('guide.step2b')}
                                 </p>
@@ -2888,7 +2956,7 @@ export default function App() {
                               <span className="shrink-0 w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold flex items-center justify-center mt-0.5">3</span>
                               <div className="space-y-1.5">
                                 <p className="text-xs font-semibold text-slate-800">{t('guide.step3Title')}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-xs text-[#8b93a8] leading-relaxed">
                                   {t('guide.step3a')} <strong>3. Configure webhooks</strong>{t('guide.step3b')} <strong>Callback URL</strong>{t('guide.step3c')}{' '}
                                   <strong>Verify Token</strong>{t('guide.step3d')} <strong>Verify and Save</strong>{t('guide.step3e')}
                                   <code className="font-mono">messages</code>{t('guide.step3f')}
@@ -2902,7 +2970,7 @@ export default function App() {
                               <span className="shrink-0 w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold flex items-center justify-center mt-0.5">4</span>
                               <div className="space-y-1.5">
                                 <p className="text-xs font-semibold text-slate-800">{t('guide.step4Title')}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-xs text-[#8b93a8] leading-relaxed">
                                   <strong>4. Set up Instagram business login → Set up</strong>{t('guide.step4a')}{' '}
                                   <em>Valid OAuth Redirect URI</em>{t('guide.step4b')}
                                 </p>
@@ -2914,7 +2982,7 @@ export default function App() {
                               <span className="shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center justify-center mt-0.5">5</span>
                               <div className="space-y-1.5">
                                 <p className="text-xs font-semibold text-slate-800">{t('guide.step5Title')}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-xs text-[#8b93a8] leading-relaxed">
                                   {t('guide.step5a')} <strong>Allow</strong>{t('guide.step5b')}{' '}
                                   <strong>{t('guide.step5c')}</strong>{' '}
                                   {t('guide.step5d')}
@@ -2945,7 +3013,7 @@ export default function App() {
                             {!isOauthPending && <ArrowRight className="w-4 h-4 ml-1" />}
                           </button>
                           {isOauthPending && (
-                            <p className="text-xs text-slate-500 leading-relaxed">
+                            <p className="text-xs text-[#8b93a8] leading-relaxed">
                               {t('guide.oauthWaitingA')} <strong>Allow</strong> {t('guide.oauthWaitingB')}
                             </p>
                           )}
@@ -2969,7 +3037,7 @@ export default function App() {
                                 ? t('manual.titlePrimary')
                                 : 'Or Connect via Direct Meta Access Token (Developers & Testers)'}
                             </h4>
-                            <p className="text-xs text-slate-500 mt-0.5">
+                            <p className="text-xs text-[#8b93a8] mt-0.5">
                               {connectBlockedReason
                                 ? t('manual.subtitlePrimary')
                                 : 'Paste a User Access Token or Page Access Token from the Meta Developer Console.'}
@@ -3064,7 +3132,7 @@ export default function App() {
                       <ExternalLink className="w-4 h-4 text-purple-600" />
                       Meta OAuth Whitelist URL
                     </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-xs text-[#8b93a8] leading-relaxed">
                       This is the one URL that must be registered before <em>Connect Instagram Account</em> works. Paste it into your Meta App Dashboard at <strong>Instagram &gt; API setup with Instagram login &gt; 4. Set up Instagram business login &gt; Set up &gt; Redirect URL</strong>. (Apps on Facebook Login have the same field under <strong>Facebook Login for Business &gt; Settings &gt; Valid OAuth Redirect URIs</strong>.)
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -3086,7 +3154,7 @@ export default function App() {
                     
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Valid OAuth Redirect URI</span>
+                        <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Valid OAuth Redirect URI</span>
                         <button 
                           onClick={() => copyToClipboard(oauthRedirectUriFor(connection), 'oauthRedirect')}
                           className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1 font-medium"
@@ -3109,7 +3177,7 @@ export default function App() {
                     {connection?.oauthClientId && (
                       <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">
                             Meta App (Client) ID — {connection.oauthFlavour === 'instagram_login' ? 'Instagram Login' : 'Facebook Login'}
                           </span>
                           <button
@@ -3135,7 +3203,7 @@ export default function App() {
                     <Code className="w-4 h-4 text-purple-600" />
                     Meta Webhook Configuration
                   </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-[#8b93a8] leading-relaxed">
                     Set up these details in your Meta App Dashboard under <strong>Webhooks &gt; Instagram</strong> to receive real-time direct messages.
                   </p>
 
@@ -3146,7 +3214,7 @@ export default function App() {
                   
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Callback URL</span>
+                      <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Callback URL</span>
                       <button 
                         onClick={() => copyToClipboard(webhookCallbackUrl, 'callback')}
                         className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1 font-medium"
@@ -3162,7 +3230,7 @@ export default function App() {
 
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verify Token</span>
+                      <span className="text-[10px] font-bold text-[#8b93a8] uppercase tracking-wider">Verify Token</span>
                       <button 
                         onClick={() => copyToClipboard('instaflow_secure_verify_token', 'verifyToken')}
                         className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1 font-medium"
@@ -3460,6 +3528,71 @@ export default function App() {
                 </form>
               </div>
 
+              {/* Readiness is stated before the list, from the server-loaded
+                  document list — never a hardcoded number or a "ready" claim. */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-3" data-kb-readiness="true">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <p className="text-sm font-bold text-slate-900">
+                    Active Knowledge Documents: <span data-kb-count={kbItems.length}>{kbItems.length}</span>
+                  </p>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                      kbItems.length > 0
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : 'bg-amber-50 text-amber-800 border-amber-200'
+                    }`}
+                  >
+                    {kbItems.length > 0 ? 'Ready to answer' : 'Action required'}
+                  </span>
+                  {settingsState === 'saving' && <span className="text-[11px] text-slate-500">Saving…</span>}
+                  {settingsState === 'error' && (
+                    <span className="text-[11px] text-rose-700">The last save failed — documents below may not be stored yet.</span>
+                  )}
+                  {settingsState === 'saved' && <span className="text-[11px] text-emerald-700">Saved on the server</span>}
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  {kbItems.length > 0
+                    ? 'The bot answers real DMs from exactly these documents. Anything missing here gets a “let me check with the team” reply instead of a guess.'
+                    : 'No documents saved yet, so the bot has nothing to answer from. Add business details below or use the assistant.'}
+                  {starterDocsMissing.length > 0 && (
+                    <> Still blank: {starterDocsMissing.length} starter document{starterDocsMissing.length === 1 ? '' : 's'}.</>
+                  )}
+                </p>
+                {/* “Need help filling your Knowledge Base? Ask the Portal Assistant.” —
+                    one prominent button opens the existing assistant with the KB
+                    setup interview selected. It never marks the KB complete;
+                    readiness is confirmed by the server when documents are saved. */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setKbAssistantOpen(true);
+                      setKbAssistantTrigger(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6d28d9] transition"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Open Portal Assistant — Build My Knowledge Base
+                  </button>
+                  <p className="text-[11px] text-[#8b93a8]">
+                    Need help filling your Knowledge Base? Ask the Portal Assistant.
+                  </p>
+                </div>
+
+                <KbDraftAssistant
+                  documents={kbItems.length}
+                  saveState={settingsState}
+                  forceOpen={kbAssistantTrigger}
+                  onForcedOpen={() => setKbAssistantTrigger(false)}
+                  onSave={(title, content) => {
+                    setKbItems((prev) => [
+                      { id: `draft_${Date.now()}`, title, content, category: 'Custom' },
+                      ...prev,
+                    ]);
+                  }}
+                />
+              </div>
+
               {/* Knowledge Base List */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div className="purple-highlight-heading px-6 py-4 border-b border-slate-100 font-semibold text-sm text-slate-900 flex items-center gap-2">
@@ -3569,7 +3702,7 @@ export default function App() {
                               <span className="ml-2 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">NEW</span>
                             )}
                           </p>
-                          <p className="text-xs text-slate-600">
+                          <p className="text-xs text-[#c4cddd]">
                             {lead.travelDates && <span>{lead.travelDates} · </span>}
                             {lead.travellers && <span>{lead.travellers} · </span>}
                             {new Date(lead.createdAt).toLocaleString()}
@@ -3652,7 +3785,7 @@ export default function App() {
                           </div>
                           <div>
                             <h4 className="font-bold text-slate-900 text-sm">{selectedConv.customerName || selectedConv.senderHandle || 'Instagram User'}</h4>
-                            <p className="text-xs text-slate-500">{selectedConv.customerHandle || `Sender ID: ${selectedConv.senderId}`}</p>
+                            <p className="text-xs text-[#8b93a8]">{selectedConv.customerHandle || `Sender ID: ${selectedConv.senderId}`}</p>
                           </div>
                         </div>
 
@@ -3914,15 +4047,15 @@ export default function App() {
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
                 <h3 className="font-bold text-slate-900 text-sm">Subscription & Tenant Security Status</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
+                  <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
                     <span className="text-xs font-semibold text-slate-400">Subscription Status</span>
                     <p className="text-sm font-bold text-emerald-700">Active (Verified)</p>
                   </div>
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
+                  <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
                     <span className="text-xs font-semibold text-slate-400">Database Tenant Isolation</span>
                     <p className="text-sm font-bold text-slate-800">Firestore Rules Enforced</p>
                   </div>
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
+                  <div className="bg-[#18243A] p-4 rounded-xl border border-[#243049] space-y-1">
                     <span className="text-xs font-semibold text-slate-400">Encryption Standard</span>
                     <p className="text-sm font-bold text-slate-800">AES-256-GCM at Rest</p>
                   </div>
@@ -4085,7 +4218,7 @@ export default function App() {
               autoComplete="off"
               className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-            <p className="text-[11px] text-slate-500">{t('username.rule')}</p>
+            <p className="text-[11px] text-[#8b93a8]">{t('username.rule')}</p>
             {usernameError && (
               <p className="text-[11px] font-medium text-rose-600">{usernameError}</p>
             )}
@@ -4097,7 +4230,7 @@ export default function App() {
             >
               {savingUsername ? t('username.saving') : t('username.save')}
             </button>
-            <p className="text-[11px] text-slate-400">{t('username.lockedNote')}</p>
+            <p className="text-[11px] text-[#8b93a8]">{t('username.lockedNote')}</p>
             <p className="text-[11px] text-amber-700">{t('username.required')}</p>
           </div>
         </div>
@@ -4108,7 +4241,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-slate-900">Privacy Policy</h2>
-            <p className="text-xs text-slate-500">Last updated: September 23, 2026</p>
+            <p className="text-xs text-[#8b93a8]">Last updated: September 23, 2026</p>
             <div className="text-xs text-slate-700 space-y-3 leading-relaxed">
               <p>InstaFlow AI respects your privacy and is committed to protecting your personal data. We collect business profile information, Instagram page credentials (encrypted at rest with AES-256-GCM), knowledge base FAQs, and conversation logs necessary to provide AI-powered customer support automation.</p>
               <p>All sensitive tokens and business secrets are encrypted at rest. We enforce strict multi-tenant isolation through Firebase Firestore Security Rules.</p>
@@ -4125,7 +4258,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-slate-900">Terms of Service</h2>
-            <p className="text-xs text-slate-500">Last updated: September 23, 2026</p>
+            <p className="text-xs text-[#8b93a8]">Last updated: September 23, 2026</p>
             <div className="text-xs text-slate-700 space-y-3 leading-relaxed">
               <p>Welcome to InstaFlow AI. By accessing or using our platform, you agree to be bound by these Terms of Service.</p>
               <p>You agree to use InstaFlow AI in compliance with Meta Platform Terms and Instagram Community Guidelines.</p>

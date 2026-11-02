@@ -18,7 +18,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
-import type { OnboardingSnapshot, OnboardingStepId } from './onboarding';
+import { instagramStatusLabel, type OnboardingSnapshot, type OnboardingStepId } from './onboarding';
 import { ONBOARDING_STEP_ORDER } from './onboarding';
 import type { OnboardingStepV5Key } from './stringIndexes';
 
@@ -153,6 +153,12 @@ export function SidebarPanel({
       {steps.map((step) => {
         const tab = step.key;
         const isConnectedStep = tab === 'connections';
+        // One authoritative connection state for the whole UI: the server's
+        // onboarding snapshot decides whether the guide's step is done, so the
+        // sidebar must read the same field. Using the connection endpoint alone
+        // produced "Connected" next to a guide row saying "not connected yet".
+        const igLabel = instagramStatusLabel(onboardingSnapshot?.signals.instagram, connectionConnected);
+        const igOk = igLabel === 'Connected';
         // The server-computed current step (next incomplete one) is the only
         // item allowed to pulse — never every sidebar row at once.
         const isCurrentStep = Boolean(
@@ -208,17 +214,15 @@ export function SidebarPanel({
                 <div className="mt-0.5 flex items-center gap-1.5">
                   <span
                     className={`inline-flex items-center gap-1 text-[10px] font-semibold ${
-                      connectionConnected
-                        ? 'text-emerald-700'
-                        : 'text-amber-700'
+                      igOk ? 'text-emerald-700' : 'text-amber-700'
                     }`}
                   >
                     <span
                       className={`inline-block w-1.5 h-1.5 rounded-full ${
-                        connectionConnected ? 'bg-emerald-500' : 'bg-amber-400'
+                        igOk ? 'bg-emerald-500' : 'bg-amber-400'
                       }`}
                     />
-                    {connectionConnected ? 'Connected' : 'Disconnected'}
+                    {igLabel}
                   </span>
                 </div>
               )}

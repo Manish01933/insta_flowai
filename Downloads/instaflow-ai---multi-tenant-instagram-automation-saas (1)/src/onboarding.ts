@@ -44,6 +44,15 @@ export interface OnboardingSignals {
   };
   knowledge: { documents: number; customised: boolean };
   simulator: { testedAt: string | null };
+  /** Saved business/contact record — the honest sub-checks on the readiness
+      banner read this, so "Contact + consent" cannot go green on a click. */
+  contact: {
+    contactPerson: string | null;
+    whatsappNumber: string | null;
+    consentGiven: boolean;
+    language: string | null;
+    email: string | null;
+  };
   guide: { hiddenAt: string | null };
 }
 
@@ -53,8 +62,13 @@ export interface OnboardingSnapshot {
   signals: OnboardingSignals;
 }
 
-export async function fetchOnboarding(tenantId: string): Promise<OnboardingSnapshot | null> {
-  const res = await apiFetch('/api/onboarding', { headers: { 'x-tenant-id': tenantId } });
+/**
+ * tenantId is optional because apiFetch already attaches it from the verified
+ * Firebase token — passing it here too is what let a component that does not
+ * own the uid call the endpoint with the wrong one.
+ */
+export async function fetchOnboarding(tenantId?: string): Promise<OnboardingSnapshot | null> {
+  const res = await apiFetch('/api/onboarding', tenantId ? { headers: { 'x-tenant-id': tenantId } } : {});
   const data = await res.json();
   return data?.success ? (data as OnboardingSnapshot) : null;
 }
@@ -252,4 +266,37 @@ export async function askGuide(
   }
 
   return { reply: String(data.reply || ''), currentStep: data.currentStep ?? null };
+}
+
+// ── Derived status (single source, unit-tested) ───────────────────────────
+// The sidebar, the guide and the completion banner must not each invent their
+// own reading of the same Instagram state — that is how "Connected" ended up
+// next to "not connected yet". Both surfaces call these two helpers instead.
+
+export interface InstagramSignalsLike {
+  connected: boolean;
+  needsReconnect: boolean;
+  lastVerifiedAt: string | null;
+}
+
+export type InstagramStatusLabel = 'Connected' | 'Needs verification' | 'Disconnected';
+
+/**
+ * Connected / Needs verification / Disconnected, from the server's onboarding
+ * signals. `fallbackConnected` is only used before the snapshot has loaded, so
+ * the row never flashes "Disconnected" on a healthy account.
+ */
+export function instagramStatusLabel(
+  signals: InstagramSignalsLike | null | undefined,
+  fallbackConnected: boolean
+): InstagramStatusLabel {
+  const connected = signals ? signals.connected : fallbackConnected;
+  if (!connected) return 'Disconnected';
+  if (!signals) return 'Connected';
+  return signals.needsReconnect || !signals.lastVerifiedAt ? 'Needs verification' : 'Connected';
+}
+
+/** AI replies may be called active only on a connected, live-verified token. */
+export function isRepliesActive(signals: InstagramSignalsLike | null | undefined): boolean {
+  return Boolean(signals?.connected && signals.lastVerifiedAt && !signals.needsReconnect);
 }

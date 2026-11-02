@@ -5,22 +5,26 @@
    [data-theme="dark"] root class — consistent across all customer-facing pages. */
 
 :root, [data-theme="dark"] {
-  /* Main page background — near-black */
-  --bg-primary: #0B0B0F;
-  /* Cards and panels — dark charcoal */
-  --bg-secondary: #15151D;
+  /* Main page background — near-black navy */
+  --bg-primary: #0B1020;
+  /* Cards and panels — dark navy */
+  --bg-secondary: #111A2E;
   /* Inputs and dropdowns */
-  --bg-input: #20202A;
+  --bg-input: #18243A;
   /* Main text and headings */
   --text-primary: #FFFFFF;
   /* Secondary text */
-  --text-secondary: #C5C5D0;
+  --text-secondary: #C4CDDD;
   /* Borders */
-  --border-color: #343440;
+  --border-color: #243049;
   /* Success indicators */
   --success-color: #22C55E;
+  /* Warning amber */
+  --warning-color: #F59E0B;
+  /* Error red */
+  --error-color: #EF4444;
   /* Purple brand color for buttons and small accents */
-  --brand-primary: #7c3aed;
+  --brand-primary: #7C3AED;
   --brand-secondary: #9333ea;
   --brand-accent: #a855f7;
   /* Card gradients for depth */
@@ -239,7 +243,10 @@ body {
 .if-dark .bg-white { background-color: var(--bg-secondary); }
 .if-dark .bg-slate-50 { background-color: var(--bg-primary); }
 .if-dark .bg-slate-100 { background-color: var(--bg-secondary); }
-.if-dark .bg-slate-200 { background-color: #25252f; }
+.if-dark .bg-slate-200 { background-color: #1a2438; }
+.if-dark .bg-slate-300 { background-color: #223049; }
+.if-dark .bg-slate-900 { background-color: #06090f; }
+.if-dark .bg-slate-950 { background-color: #04060b; }
 .if-dark .bg-slate-900 { background-color: #08080d; }
 .if-dark .bg-white\/70 { background-color: rgba(255, 255, 255, 0.08); }
 .if-dark .bg-purple-50, .if-dark .bg-purple-100 { background-color: rgba(124, 58, 237, 0.16); }
@@ -254,8 +261,8 @@ body {
 .if-dark .text-slate-800 { color: var(--text-primary); }
 .if-dark .text-slate-700 { color: var(--text-secondary); }
 .if-dark .text-slate-600 { color: var(--text-secondary); }
-.if-dark .text-slate-500 { color: rgba(199, 199, 209, 0.7); }
-.if-dark .text-slate-400 { color: rgba(199, 199, 209, 0.5); }
+.if-dark .text-slate-500 { color: rgba(196, 205, 221, 0.7); }
+.if-dark .text-slate-400 { color: rgba(196, 205, 221, 0.5); }
 
 /* Accent text keeps meaning: green = verified, amber = action, rose = failed. */
 .if-dark .text-purple-900, .if-dark .text-purple-800, .if-dark .text-purple-700 { color: #ddd6fe; }
@@ -266,15 +273,16 @@ body {
 .if-dark .text-orange-700 { color: #fdba74; }
 
 /* Borders and dividers */
-.if-dark .border-slate-200 { border-color: var(--border-color); }
-.if-dark .border-slate-100 { border-color: rgba(43, 43, 51, 0.8); }
-.if-dark .border-slate-300 { border-color: #3a3a45; }
-.if-dark .border-purple-200, .if-dark .border-purple-100 { border-color: rgba(139, 92, 246, 0.45); }
-.if-dark .border-emerald-200, .if-dark .border-emerald-100 { border-color: rgba(16, 185, 129, 0.45); }
+.if-dark .border-slate-200 { border-color: #2a3550; }
+.if-dark .border-slate-300 { border-color: #33405c; }
+.if-dark .border-slate-100 { border-color: rgba(42, 53, 80, 0.8); }
+.if-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(42, 53, 80, 0.8); }
+
+.if-dark .border-purple-200, .if-dark .border-purple-100 { border-color: rgba(124, 58, 237, 0.45); }
+.if-dark .border-emerald-200, .if-dark .border-emerald-100 { border-color: rgba(34, 197, 94, 0.45); }
 .if-dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.45); }
 .if-dark .border-rose-200 { border-color: rgba(244, 63, 94, 0.45); }
-.if-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(43, 43, 51, 0.8); }
-.if-dark .divide-purple-50\/40 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(139, 92, 246, 0.18); }
+.if-dark .divide-purple-50\/40 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(124, 58, 237, 0.18); }
 
 /* Form controls: dark field, white value, grey placeholder. */
 .if-dark input, .if-dark select, .if-dark textarea { color: var(--text-primary); }
@@ -289,5 +297,29 @@ body {
 /* The heading pill is already purple with light text — keep it as-is. */
 .if-dark .purple-highlight-heading { color: #f3e8ff; }
 
+
+/* ── Customer portal: primary actions and primary buttons must read purple,
+   never white-on-dark. Targets the button classes the portal actually uses. */
+.if-dark .bg-slate-900 { background-color: var(--brand-primary) !important; color: #ffffff !important; }
+.if-dark .bg-gradient-to-r.from-pink-600.via-purple-600.to-indigo-600,
+.if-dark .bg-gradient-to-tr.from-pink-500.via-purple-600.to-indigo-600,
+.if-dark .bg-gradient-to-tr.from-indigo-600.to-purple-600 {
+  background: linear-gradient(135deg, var(--brand-primary), #6d28d9) !important;
+}
+.if-dark .bg-gradient-to-br.from-emerald-50\/70.via-purple-50\/70.to-emerald-50\/70,
+.if-dark .bg-gradient-to-br.from-emerald-50\/80.via-purple-50\/80.to-emerald-50\/80 {
+  background-image: linear-gradient(to bottom right, rgba(34,197,94,0.14), rgba(124,58,237,0.16), rgba(34,197,94,0.14)) !important;
+}
+/* Dropdown / select menus must not show a white box on dark. */
+.if-dark [role="option"] { background-color: var(--bg-input) !important; color: var(--text-primary) !important; }
+.if-dark select option { background-color: var(--bg-input) !important; color: var(--text-primary) !important; }
+/* Ring helpers used for focus / step highlights must stay visible on dark. */
+.if-dark .ring-purple-200 { --tw-ring-color: rgba(124, 58, 237, 0.35) !important; }
+.if-dark .ring-purple-500\/20 { --tw-ring-color: rgba(124, 58, 237, 0.20) !important; }
+.if-dark .ring-purple-500\/40 { --tw-ring-color: rgba(124, 58, 237, 0.40) !important; }
+.if-dark .ring-purple-400\/20 { --tw-ring-color: rgba(168, 85, 247, 0.20) !important; }
+
+
 /* Gradient-tinted cards (feature highlights) would otherwise sit light-on-light. */
-.if-dark .bg-gradient-to-br.from-purple-50\\/60 { background-image: linear-gradient(to bottom right, rgba(124, 58, 237, 0.16), var(--bg-primary) 55%, rgba(16, 185, 129, 0.12)); }
+.if-dark .bg-gradient-to-br.from-purple-50\\/60 { background-image: linear-gradient(to bottom right, rgba(124, 58, 237, 0.18), var(--bg-primary) 55%, rgba(16, 185, 129, 0.12)); }
+.if-dark .bg-gradient-to-br.from-emerald-50\/70, .if-dark .bg-gradient-to-br.from-emerald-50\/80 { background-image: linear-gradient(to bottom right, rgba(16, 185, 129, 0.14), var(--bg-secondary) 50%, rgba(124, 58, 237, 0.14)); }

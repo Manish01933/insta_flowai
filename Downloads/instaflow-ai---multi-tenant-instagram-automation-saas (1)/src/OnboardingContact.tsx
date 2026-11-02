@@ -13,6 +13,7 @@ import {
   activateOnboardingFreePlan,
   fetchLifecycleStatus,
   fetchOnboardingContact,
+  fetchOnboarding,
   saveOnboardingContact,
   optOutOnboardingWhatsApp,
   type ContactValidationError,
@@ -41,6 +42,12 @@ export function OnboardingContact({ compact = false }: { compact?: boolean }) {
   const { t, lang } = useI18n();
   const [contact, setContact] = useState<ContactView | null>(null);
   const [lifecycle, setLifecycle] = useState<LifecycleView | null>(null);
+  // ONE authoritative Instagram state for the whole portal: the server's
+  // onboarding signals (same field the Connection Center and the sidebar read).
+  // Showing the username from the contact store while reading "connected" from
+  // the lifecycle endpoint is what let a connected account read as not
+  // connected here — the two stores can disagree for one refresh.
+  const [igSignals, setIgSignals] = useState<{ connected: boolean; username: string | null; accountId: string | null; lastVerifiedAt: string | null; needsReconnect: boolean } | null>(null);
   const [freePlanState, setFreePlanState] = useState<'idle' | 'activating' | 'done' | 'error'>('idle');
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [errors, setErrors] = useState<string[]>([]);
@@ -53,12 +60,14 @@ export function OnboardingContact({ compact = false }: { compact?: boolean }) {
   const [consent, setConsent] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [saved, life] = await Promise.all([
+    const [saved, life, snap] = await Promise.all([
       fetchOnboardingContact().catch(() => null),
       fetchLifecycleStatus().catch(() => null),
+      fetchOnboarding().catch(() => null),
     ]);
     setContact(saved);
     setLifecycle(life);
+    setIgSignals(snap?.signals.instagram ?? null);
     if (saved) {
       setContactPerson(saved.contactPerson || '');
       // The stored number is masked; never pre-fill it as if editable data.
@@ -115,12 +124,16 @@ export function OnboardingContact({ compact = false }: { compact?: boolean }) {
       await activateOnboardingFreePlan();
       setFreePlanState('done');
       void fetchLifecycleStatus().then(setLifecycle).catch(() => undefined);
+      void fetchOnboarding().then((snap) => setIgSignals(snap?.signals.instagram ?? null)).catch(() => undefined);
     } catch {
       setFreePlanState('error');
     }
   };
 
-  const connected = Boolean(lifecycle?.connected);
+  // One source: the onboarding snapshot's instagram signals. Falls back to the
+  // lifecycle row only before the snapshot has loaded, so a healthy account
+  // never flashes "not connected" on first paint.
+  const connected = Boolean(igSignals?.connected ?? lifecycle?.connected ?? false);
   const statusRow: string | null = lifecycle?.status ?? null;
 
   return (
@@ -188,17 +201,17 @@ export function OnboardingContact({ compact = false }: { compact?: boolean }) {
               </span>
             )}
           </div>
-          {connected && contact?.instagramUsername ? (
+          {connected && (igSignals?.username || contact?.instagramUsername) ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-900">@{escapeHtml(contact.instagramUsername)}</span>
-                {contact.instagramAccountId && (
+                <span className="text-xs font-semibold text-slate-900">@{escapeHtml(igSignals?.username || contact?.instagramUsername || '')}</span>
+                {(igSignals?.accountId || contact?.instagramAccountId) && (
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
-                    <span>ID: {contact.instagramAccountId}</span>
+                    <span>ID: {igSignals?.accountId || contact?.instagramAccountId}</span>
                     <button
                       type="button"
                       onClick={() => {
-                        void navigator.clipboard.writeText(String(contact.instagramAccountId ?? ''));
+                        void navigator.clipboard.writeText(String(igSignals?.accountId || contact?.instagramAccountId || ''));
                       }}
                       className="text-slate-400 hover:text-slate-700"
                     >
