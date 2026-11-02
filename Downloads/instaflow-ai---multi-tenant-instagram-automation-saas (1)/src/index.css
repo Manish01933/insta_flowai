@@ -1,5 +1,88 @@
 @import "tailwindcss";
 
+/* ── Dark Theme Tokens ────────────────────────────────────────────────────────
+   Default-on dark theme with exact color values requested. Applied via 
+   [data-theme="dark"] root class — consistent across all customer-facing pages. */
+
+:root, [data-theme="dark"] {
+  /* Main page background — near-black */
+  --bg-primary: #0B0B0F;
+  /* Cards and panels — dark charcoal */
+  --bg-secondary: #15151D;
+  /* Inputs and dropdowns */
+  --bg-input: #20202A;
+  /* Main text and headings */
+  --text-primary: #FFFFFF;
+  /* Secondary text */
+  --text-secondary: #C5C5D0;
+  /* Borders */
+  --border-color: #343440;
+  /* Success indicators */
+  --success-color: #22C55E;
+  /* Purple brand color for buttons and small accents */
+  --brand-primary: #7c3aed;
+  --brand-secondary: #9333ea;
+  --brand-accent: #a855f7;
+  /* Card gradients for depth */
+  --card-gradient-start: rgba(124, 58, 237, 0.16);
+  --card-gradient-middle: #0b0b12;
+  --card-gradient-end: rgba(16, 185, 129, 0.12);
+}
+
+/* ── Base layout with dark theme ──────────────────────────────────────────── */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Default page container */
+.page-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Card component base */
+.card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Input fields */
+.input-field {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.input-field::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Text colors utility classes */
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-success { color: var(--success-color) !important; }
+
+/* Border utility classes */
+.border-primary { border-color: var(--border-color) !important; }
+
 /* ── Onboarding: animated gradient accent (Management heading) ──
    Single, lightweight animation. Full stops under prefers-reduced-motion. */
 @keyframes onboarding-gradient-shift {
@@ -139,3 +222,72 @@
     opacity: 0.3;
   }
 }
+
+/* ── Customer portal: dark onboarding surface (`if-dark`) ──────────────────
+   The portal renders on a near-black page with white primary text. Tailwind
+   utilities in the existing components are single-class, so these scoped
+   selectors (`.if-dark .bg-white`, specificity 0,2,0) restyle them without
+   touching the working markup, and the landing/pricing/booking pages — which
+   live outside this wrapper — keep their own light theme.
+   Accent tints keep their hue but drop to a dark tint so coloured cards stay
+   readable instead of becoming white blocks. Saturated purple/emerald buttons
+   are excluded from the white→dark swap because their child badges are meant
+   to be white-on-purple. */
+.if-dark { color-scheme: dark; }
+
+/* Surfaces */
+.if-dark .bg-white { background-color: var(--bg-secondary); }
+.if-dark .bg-slate-50 { background-color: var(--bg-primary); }
+.if-dark .bg-slate-100 { background-color: var(--bg-secondary); }
+.if-dark .bg-slate-200 { background-color: #25252f; }
+.if-dark .bg-slate-900 { background-color: #08080d; }
+.if-dark .bg-white\/70 { background-color: rgba(255, 255, 255, 0.08); }
+.if-dark .bg-purple-50, .if-dark .bg-purple-100 { background-color: rgba(124, 58, 237, 0.16); }
+.if-dark .bg-emerald-50, .if-dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.14); }
+.if-dark .bg-amber-50, .if-dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.14); }
+.if-dark .bg-rose-50, .if-dark .bg-rose-100 { background-color: rgba(244, 63, 94, 0.14); }
+.if-dark .bg-indigo-50, .if-dark .bg-sky-100 { background-color: rgba(99, 102, 241, 0.16); }
+.if-dark .bg-orange-50, .if-dark .bg-orange-100 { background-color: rgba(249, 115, 22, 0.14); }
+
+/* Primary + secondary text */
+.if-dark .text-slate-900 { color: var(--text-primary); }
+.if-dark .text-slate-800 { color: var(--text-primary); }
+.if-dark .text-slate-700 { color: var(--text-secondary); }
+.if-dark .text-slate-600 { color: var(--text-secondary); }
+.if-dark .text-slate-500 { color: rgba(199, 199, 209, 0.7); }
+.if-dark .text-slate-400 { color: rgba(199, 199, 209, 0.5); }
+
+/* Accent text keeps meaning: green = verified, amber = action, rose = failed. */
+.if-dark .text-purple-900, .if-dark .text-purple-800, .if-dark .text-purple-700 { color: #ddd6fe; }
+.if-dark .text-emerald-900, .if-dark .text-emerald-800, .if-dark .text-emerald-700 { color: #86efac; }
+.if-dark .text-amber-900, .if-dark .text-amber-800, .if-dark .text-amber-700 { color: #fde047; }
+.if-dark .text-rose-800, .if-dark .text-rose-700, .if-dark .text-rose-600 { color: #fda4af; }
+.if-dark .text-indigo-800, .if-dark .text-indigo-700, .if-dark .text-sky-800 { color: #a5b4fc; }
+.if-dark .text-orange-700 { color: #fdba74; }
+
+/* Borders and dividers */
+.if-dark .border-slate-200 { border-color: var(--border-color); }
+.if-dark .border-slate-100 { border-color: rgba(43, 43, 51, 0.8); }
+.if-dark .border-slate-300 { border-color: #3a3a45; }
+.if-dark .border-purple-200, .if-dark .border-purple-100 { border-color: rgba(139, 92, 246, 0.45); }
+.if-dark .border-emerald-200, .if-dark .border-emerald-100 { border-color: rgba(16, 185, 129, 0.45); }
+.if-dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.45); }
+.if-dark .border-rose-200 { border-color: rgba(244, 63, 94, 0.45); }
+.if-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(43, 43, 51, 0.8); }
+.if-dark .divide-purple-50\/40 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(139, 92, 246, 0.18); }
+
+/* Form controls: dark field, white value, grey placeholder. */
+.if-dark input, .if-dark select, .if-dark textarea { color: var(--text-primary); }
+.if-dark input::placeholder, .if-dark textarea::placeholder { color: var(--text-secondary); }
+.if-dark select option { background-color: var(--bg-input); color: var(--text-primary); }
+
+/* White-on-purple/emerald badges must stay white. */
+.if-dark .bg-purple-600 .bg-white,
+.if-dark .bg-indigo-600 .bg-white,
+.if-dark .bg-emerald-600 .bg-white { background-color: #ffffff; color: #4c1d95; }
+
+/* The heading pill is already purple with light text — keep it as-is. */
+.if-dark .purple-highlight-heading { color: #f3e8ff; }
+
+/* Gradient-tinted cards (feature highlights) would otherwise sit light-on-light. */
+.if-dark .bg-gradient-to-br.from-purple-50\\/60 { background-image: linear-gradient(to bottom right, rgba(124, 58, 237, 0.16), var(--bg-primary) 55%, rgba(16, 185, 129, 0.12)); }

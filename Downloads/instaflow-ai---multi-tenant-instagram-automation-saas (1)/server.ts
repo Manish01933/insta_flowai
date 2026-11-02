@@ -739,37 +739,37 @@ function renderBookingPage(args: {
 <title>${escapeHtml(fillTemplate(c.pageTitle, { handle }))}</title>
 <meta name="description" content="${escapeHtml(fillTemplate(c.metaDescription, { handle }))}" />
 <style>
-  :root { color-scheme: light; }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.5; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0B0B0F; color: #FFFFFF; line-height: 1.55; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 64px; }
   header { background: linear-gradient(135deg, #6d28d9, #a21caf); color: #fff; padding: 28px 16px 24px; }
   header .wrap { padding-bottom: 0; }
   header h1 { margin: 8px 0 4px; font-size: 22px; }
   header p { margin: 0; opacity: .85; font-size: 13px; }
   .badge { display: inline-block; background: rgba(255,255,255,.18); padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin: 28px 0 12px; }
-  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #C5C5D0; margin: 28px 0 12px; }
+  .card { background: #15151D; border: 1px solid #343440; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
   .card-head { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .card h3 { margin: 0; font-size: 15px; }
-  .card p { margin: 6px 0 0; font-size: 13px; color: #475569; white-space: pre-wrap; }
-  .chip { background: #f3e8ff; color: #7e22ce; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-  form { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; }
-  label { display: block; font-size: 12px; font-weight: 600; color: #334155; margin: 12px 0 4px; }
-  input, textarea { width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; background: #f8fafc; }
-  input:focus, textarea:focus { outline: none; border-color: #7e22ce; background: #fff; }
+  .card p { margin: 6px 0 0; font-size: 13px; color: #C5C5D0; white-space: pre-wrap; }
+  .chip { background: rgba(109,40,217,.18); color: #C5C5D0; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  form { background: #15151D; border: 1px solid #343440; border-radius: 16px; padding: 18px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: #C5C5D0; margin: 12px 0 4px; }
+  input, textarea { width: 100%; padding: 11px 12px; border: 1px solid #343440; border-radius: 10px; font-size: 14px; font-family: inherit; background: #20202A; color: #FFFFFF; }
+  input:focus, textarea:focus { outline: none; border-color: #6d28d9; background: #20202A; }
   .row { display: flex; gap: 10px; }
   .row > div { flex: 1; }
   button { width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 12px; background: #6d28d9; color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
   button:disabled { opacity: .6; cursor: default; }
   .err { color: #be123c; font-size: 13px; margin-top: 10px; display: none; }
-  .ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 14px; padding: 18px; font-size: 14px; }
+  .ok { background: rgba(34,197,94,.12); border: 1px solid #22C55E; color: #86efac; border-radius: 14px; padding: 18px; font-size: 14px; }
   .honeypot { position: absolute; left: -9999px; }
   .langswitch { display: flex; gap: 4px; margin-top: 14px; }
   .langswitch a { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); text-decoration: none; padding: 4px 11px; border-radius: 999px; background: rgba(255,255,255,.14); }
-  .langswitch a.on { background: #fff; color: #6d28d9; }
+  .langswitch a.on { background: #6d28d9; color: #fff; }
   footer { margin-top: 28px; font-size: 11px; color: #94a3b8; text-align: center; }
-  footer a { color: #7e22ce; }
+  footer a { color: #a78bfa; }
 </style>
 </head>
 <body>
@@ -1010,7 +1010,7 @@ function renderPlansPage(
 <meta name="description" content="${escapeHtml(c.metaDescription)}" />
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.5; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0B0B0F; color: #FFFFFF; line-height: 1.55; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px 72px; }
   header { background: linear-gradient(135deg, #6d28d9, #a21caf); color: #fff; padding: 56px 20px 48px; text-align: center; }
   header h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: -0.02em; }
@@ -1018,29 +1018,29 @@ function renderPlansPage(
   .steps { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 26px; font-size: 13px; }
   .steps span { background: rgba(255,255,255,.16); padding: 6px 14px; border-radius: 999px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: -36px; }
-  .plan { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 22px; position: relative; display: flex; flex-direction: column; }
+  .plan { background: #15151D; border: 1px solid #343440; border-radius: 18px; padding: 22px; position: relative; display: flex; flex-direction: column; }
   .plan-hot { border-color: #a21caf; box-shadow: 0 14px 40px rgba(109,40,217,.16); }
   .hot { position: absolute; top: -11px; left: 22px; background: #a21caf; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
   .plan h3 { margin: 0; font-size: 18px; }
-  .tag { margin: 4px 0 14px; color: #64748b; font-size: 13px; }
+  .tag { margin: 4px 0 14px; color: #C5C5D0; font-size: 13px; }
   .price { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
-  .price s { font-size: 14px; font-weight: 600; color: #64748b; margin-right: 4px; }
+  .price s { font-size: 14px; font-weight: 600; color: #94a3b8; margin-right: 4px; }
   .price span { font-size: 13px; font-weight: 500; color: #475569; }
-  ul { list-style: none; padding: 0; margin: 16px 0 22px; font-size: 13px; color: #334155; flex: 1; }
+  ul { list-style: none; padding: 0; margin: 16px 0 22px; font-size: 13px; color: #C5C5D0; flex: 1; }
   li { padding-left: 20px; position: relative; margin-bottom: 7px; }
   li:before { content: "\u2713"; position: absolute; left: 0; color: #16a34a; font-weight: 700; }
   .btn { display: block; text-align: center; padding: 12px; border-radius: 12px; background: #6d28d9; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
   .btn:hover { background: #5b21b6; }
-  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin: 48px 0 14px; }
-  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; font-size: 14px; color: #334155; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #C5C5D0; margin: 48px 0 14px; }
+  .card { background: #15151D; border: 1px solid #343440; border-radius: 14px; padding: 18px 20px; font-size: 14px; color: #C5C5D0; }
   .card ol { margin: 0; padding-left: 20px; }
   .card li { margin-bottom: 6px; }
   footer { margin-top: 40px; font-size: 11px; color: #94a3b8; text-align: center; }
   footer a { color: #7e22ce; }
-  .note { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 12px; padding: 12px 16px; font-size: 13px; margin-top: 18px; }
+  .note { background: rgba(245,158,11,.12); border: 1px solid #343440; color: #C5C5D0; border-radius: 12px; padding: 12px 16px; font-size: 13px; margin-top: 18px; }
   .langswitch { display: flex; gap: 4px; justify-content: center; margin-top: 18px; }
   .langswitch a { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); text-decoration: none; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); }
-  .langswitch a.on { background: #fff; color: #6d28d9; }
+  .langswitch a.on { background: #6d28d9; color: #fff; }
 </style>
 </head>
 <body>
@@ -1089,7 +1089,7 @@ function getPublicBusinessInfo() {
 }
 
 const POLICY_PAGE_STYLE =
-  'body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;color:#333;}a{color:#6d28d9}h2{margin-top:28px}footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:13px;color:#64748b}footer p{margin:4px 0}';
+  'body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;background:#0B0B0F;color:#FFFFFF;}a{color:#a78bfa}h2{margin-top:28px;color:#FFFFFF}footer{margin-top:40px;padding-top:16px;border-top:1px solid #343440;font-size:13px;color:#C5C5D0}footer p{margin:4px 0}';
 
 /**
  * Shared shell for the public policy pages. Every one of them repeats the
@@ -1104,7 +1104,7 @@ function renderPolicyPage(title: string, bodyHtml: string): string {
     <head><meta charset="utf-8" /><title>${escapeHtml(title)} - ${escapeHtml(businessName)}</title><style>${POLICY_PAGE_STYLE}</style></head>
     <body>
       <h1>${escapeHtml(title)}</h1>
-      <p style="color:#64748b">Last updated: September 29, 2026</p>
+      <p style="color:#94a3b8">Last updated: September 29, 2026</p>
       ${bodyHtml}
       <footer>
         <p><strong>${escapeHtml(businessName)}</strong>${businessAddress ? ` · ${escapeHtml(businessAddress)}` : ''}</p>
@@ -1130,17 +1130,17 @@ function renderComplaintForm(lang: Lang = DEFAULT_LANG): string {
   const c = COMPLAINT[lang];
   return `
   <style>
-    .cmp-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; margin: 8px 0 4px; }
-    .cmp-form label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin: 12px 0 4px; }
+    .cmp-form { background: #15151D; border: 1px solid #343440; border-radius: 14px; padding: 16px; margin: 8px 0 4px; }
+    .cmp-form label { display: block; font-size: 13px; font-weight: 600; color: #C5C5D0; margin: 12px 0 4px; }
     .cmp-form label:first-child { margin-top: 0; }
-    .cmp-form input, .cmp-form textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit; background: #f8fafc; }
-    .cmp-form input:focus, .cmp-form textarea:focus { outline: none; border-color: #7e22ce; background: #fff; }
+    .cmp-form input, .cmp-form textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #343440; border-radius: 10px; font-size: 14px; font-family: inherit; background: #20202A; color: #FFFFFF; }
+    .cmp-form input:focus, .cmp-form textarea:focus { outline: none; border-color: #6d28d9; background: #20202A; }
     .cmp-form button { width: 100%; margin-top: 16px; padding: 13px; border: 0; border-radius: 12px; background: #6d28d9; color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
     .cmp-form button:disabled { opacity: .6; cursor: default; }
-    .cmp-form .cmp-err { color: #be123c; font-size: 13px; margin-top: 10px; display: none; }
-    .cmp-form .cmp-note { font-size: 12px; color: #64748b; margin: 10px 0 0; }
+    .cmp-form .cmp-err { color: #fca5a5; font-size: 13px; margin-top: 10px; display: none; }
+    .cmp-form .cmp-note { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }
     .cmp-form .cmp-honeypot { position: absolute; left: -9999px; }
-    .cmp-ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 14px; padding: 18px; font-size: 14px; }
+    .cmp-ok { background: rgba(34,197,94,.12); border: 1px solid #22C55E; color: #86efac; border-radius: 14px; padding: 18px; font-size: 14px; }
   </style>
   <form id="complaint-form" class="cmp-form" novalidate>
     <label for="cmp-account">${escapeHtml(c.labelAccountId)}</label>
@@ -1214,7 +1214,7 @@ function renderComplaintPage(lang: Lang = DEFAULT_LANG): string {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>${escapeHtml(c.pageTitle)} - InstaFlow AI</title>
       <meta name="description" content="${escapeHtml(c.metaDescription)}" />
-      <style>${POLICY_PAGE_STYLE}body{padding-bottom:48px}.langswitch{display:flex;gap:4px;margin:0 0 14px}.langswitch a{font-size:12px;font-weight:700;color:#6d28d9;text-decoration:none;padding:4px 11px;border-radius:999px;background:#f1f5f9}.langswitch a.on{background:#6d28d9;color:#fff}</style>
+      <style>${POLICY_PAGE_STYLE}body{padding-bottom:48px}.langswitch{display:flex;gap:4px;margin:0 0 14px}.langswitch a{font-size:12px;font-weight:700;color:#a78bfa;text-decoration:none;padding:4px 11px;border-radius:999px;background:#20202A}.langswitch a.on{background:#6d28d9;color:#fff}</style>
     </head>
     <body>
       <h1>${escapeHtml(c.h1)}</h1>
@@ -1251,7 +1251,7 @@ function renderLandingPage(
   /** Real seat numbers for the launch offer; null when the offer is closed. */
   offer: { sold: number; cap: number } | null = null
 ): string {
-const BANNER_CSS = `\n  .sitebanner { background: #fff; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }\n  /* Koi bhi size ka image fit ho jata hai: page se chaudi nahi, screen se\n     zyada unchi nahi, aur apna proportion kabhi nahi khoti. Sirf max-width\n     aur max-height diye hain, width/height auto — tabhi browser dono limits\n     ke andar image ko shrink karke ratio bachata hai. Width 100% jaan-boojh\n     kar nahi hai: woh height ko dabata tha aur lambi image stretch ho jaati\n     thi. Chhoti image stretch nahi hoti, apne size me center rehti hai. */\n  .sitebanner img { display: block; width: auto; height: auto; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 14px; }\n  .sitebanner.portrait img { max-width: min(420px, 100%); max-height: 78vh; }\n  @media (max-width: 640px) {\n    .sitebanner { padding: 8px 0; }\n    .sitebanner img { max-height: 50vh; border-radius: 10px; }\n    .sitebanner.portrait img { max-height: 62vh; }\n  }\n`;
+const BANNER_CSS = `\n  .sitebanner { background: #15151D; padding: 12px 0; border-bottom: 1px solid #343440; }\n  /* Koi bhi size ka image fit ho jata hai: page se chaudi nahi, screen se\n     zyada unchi nahi, aur apna proportion kabhi nahi khoti. Sirf max-width\n     aur max-height diye hain, width/height auto — tabhi browser dono limits\n     ke andar image ko shrink karke ratio bachata hai. Width 100% jaan-boojh\n     kar nahi hai: woh height ko dabata tha aur lambi image stretch ho jaati\n     thi. Chhoti image stretch nahi hoti, apne size me center rehti hai. */\n  .sitebanner img { display: block; width: auto; height: auto; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 14px; }\n  .sitebanner.portrait img { max-width: min(420px, 100%); max-height: 78vh; }\n  @media (max-width: 640px) {\n    .sitebanner { padding: 8px 0; }\n    .sitebanner img { max-height: 50vh; border-radius: 10px; }\n    .sitebanner.portrait img { max-height: 62vh; }\n  }\n`;
   const c = LANDING[lang];
   const supportEmail = (process.env.SUPPORT_EMAIL || '').trim();
 
@@ -1295,6 +1295,7 @@ const BANNER_CSS = `\n  .sitebanner { background: #fff; padding: 12px 0; border-
       <h2 class="offer-title">${escapeHtml(c.offerTitle)}</h2>
       <p class="offer-price"><s>${escapeHtml(c.offerOldPrice)}</s><strong>${escapeHtml(c.offerPrice)}</strong><span>${escapeHtml(c.offerPer)}</span></p>
       <p class="offer-body">${escapeHtml(c.offerBody)}</p>
+      <p class="offer-prize">${escapeHtml(c.offerPrize)}</p>
       <p class="offer-terms">${escapeHtml(c.offerTerms)}</p>
     </div>
     <div class="offer-side">
@@ -1313,79 +1314,80 @@ const BANNER_CSS = `\n  .sitebanner { background: #fff; padding: 12px 0; border-
 <title>InstaFlow AI \u2014 Instagram DM automation with an AI that knows your business</title>
 <meta name="description" content="InstaFlow AI replies to Instagram DMs from your own knowledge base, sends interested customers to your booking page, and delivers every lead straight to you. Plans from \u20b9999/month." />
 <style>
-  :root { color-scheme: light; --brand: #6d28d9; --brand-2: #a21caf; }
+  :root { color-scheme: dark; --brand: #6d28d9; --brand-2: #a21caf; }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.55; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0B0B0F; color: #FFFFFF; line-height: 1.55; }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
   a { color: inherit; }
-  header.nav { background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+  header.nav { background: #15151D; border-bottom: 1px solid #343440; position: sticky; top: 0; z-index: 10; }
   header.nav .wrap { display: flex; align-items: center; gap: 20px; height: 64px; }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; text-decoration: none; }
   .logo .mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
   nav.links { margin-left: auto; display: flex; align-items: center; gap: 20px; }
-  nav.links a { font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; }
+  nav.links a { font-size: 13px; font-weight: 600; color: #C5C5D0; text-decoration: none; }
   nav.links a:hover { color: var(--brand); }
-  .signin { background: #0f172a; color: #fff !important; padding: 9px 16px; border-radius: 10px; font-weight: 700 !important; }
-  .hero { background: linear-gradient(135deg, #6d28d9, #a21caf); color: #fff; padding: 72px 0 64px; }
+  .signin { background: #6d28d9; color: #fff !important; padding: 9px 16px; border-radius: 10px; font-weight: 700 !important; }
+  .hero { background: #0B0B0F; color: #fff; padding: 72px 0 64px; }
   .hero h1 { font-size: 40px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.02em; }
   .hero p.lede { font-size: 17px; max-width: 680px; margin: 0 0 12px; color: rgba(255,255,255,.92); }
   .hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  .btn { display: inline-block; background: #fff; color: var(--brand); padding: 13px 22px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 15px; }
+  .btn { display: inline-block; background: #15151D; color: #fff; padding: 13px 22px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 15px; }
   .btn-ghost { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.35); }
   .btn-block { display: block; text-align: center; background: var(--brand); color: #fff; font-size: 13px; padding: 11px; }
   .hero .fine { font-size: 12px; color: rgba(255,255,255,.8); margin-top: 14px; }
   h2 { font-size: 26px; letter-spacing: -0.01em; margin: 0 0 6px; }
   section { padding: 56px 0; }
-  section > .wrap > p.sub { color: #64748b; font-size: 15px; margin: 0 0 28px; max-width: 720px; }
+  section > .wrap > p.sub { color: #C5C5D0; font-size: 15px; margin: 0 0 28px; max-width: 720px; }
   .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
-  .step { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; }
-  .step .num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 999px; background: #f3e8ff; color: var(--brand); font-weight: 800; font-size: 13px; }
+  .step { background: #15151D; border: 1px solid #343440; border-radius: 16px; padding: 20px; }
+  .step .num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 999px; background: rgba(109,40,217,.18); color: var(--brand); font-weight: 800; font-size: 13px; }
   .step h3 { font-size: 15px; margin: 12px 0 6px; }
-  .step p { margin: 0; font-size: 13px; color: #475569; }
+  .step p { margin: 0; font-size: 13px; color: #C5C5D0; }
   .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .feature { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; }
+  .feature { background: #15151D; border: 1px solid #343440; border-radius: 16px; padding: 20px; }
   .feature h3 { font-size: 15px; margin: 0 0 6px; }
-  .feature p { margin: 0; font-size: 13px; color: #475569; }
+  .feature p { margin: 0; font-size: 13px; color: #C5C5D0; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chips span { background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: 6px 14px; font-size: 13px; color: #334155; }
+  .chips span { background: #20202A; border: 1px solid #343440; border-radius: 999px; padding: 6px 14px; font-size: 13px; color: #C5C5D0; }
   .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; align-items: start; }
-  .plan { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 22px; position: relative; }
-  .plan-hot { border: 2px solid var(--brand); box-shadow: 0 12px 30px rgba(109,40,217,.12); }
+  .plan { background: #15151D; border: 1px solid #343440; border-radius: 18px; padding: 22px; position: relative; }
+  .plan-hot { border: 2px solid var(--brand); box-shadow: 0 12px 30px rgba(109,40,217,.28); }
   .hot { position: absolute; top: -11px; left: 22px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
   .plan h3 { margin: 0; font-size: 17px; }
-  .plan .tag { margin: 2px 0 14px; font-size: 13px; color: #64748b; }
+  .plan .tag { margin: 2px 0 14px; font-size: 13px; color: #C5C5D0; }
   .plan .price { font-size: 30px; font-weight: 800; }
-  .plan .price s { font-size: 15px; font-weight: 600; color: #64748b; margin-right: 4px; }
-  .plan .price span { font-size: 13px; font-weight: 500; color: #475569; }
+  .plan .price s { font-size: 15px; font-weight: 600; color: #94a3b8; margin-right: 4px; }
+  .plan .price span { font-size: 13px; font-weight: 500; color: #94a3b8; }
   .plan ul { list-style: none; padding: 0; margin: 16px 0 20px; }
-  .plan li { font-size: 13px; color: #334155; padding: 4px 0 4px 22px; position: relative; }
-  .plan li::before { content: "\\2713"; position: absolute; left: 0; color: #10b981; font-weight: 800; }
-  .note { margin-top: 18px; font-size: 13px; color: #64748b; }
-  details { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  .plan li { font-size: 13px; color: #C5C5D0; padding: 4px 0 4px 22px; position: relative; }
+  .plan li::before { content: "\\2713"; position: absolute; left: 0; color: #22C55E; font-weight: 800; }
+  .note { margin-top: 18px; font-size: 13px; color: #C5C5D0; }
+  details { background: #15151D; border: 1px solid #343440; border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
   details summary { font-weight: 700; font-size: 14px; cursor: pointer; }
-  details p { margin: 10px 0 0; font-size: 13px; color: #475569; }
-  footer.site { background: #0f172a; color: #cbd5e1; padding: 40px 0; font-size: 13px; }
-  footer.site a { color: #e2e8f0; text-decoration: none; margin-right: 18px; }
+  details p { margin: 10px 0 0; font-size: 13px; color: #C5C5D0; }
+  footer.site { background: #08080c; color: #C5C5D0; padding: 40px 0; font-size: 13px; }
+  footer.site a { color: #a78bfa; text-decoration: none; margin-right: 18px; }
   footer.site a:hover { text-decoration: underline; }
   footer.site .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-  .langswitch { display: inline-flex; gap: 2px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 9px; padding: 2px; }
-  .langswitch a { font-size: 12px; font-weight: 700; color: #64748b; text-decoration: none; padding: 4px 9px; border-radius: 7px; }
-  .langswitch a.on { background: #fff; color: var(--brand); }
+  .langswitch { display: inline-flex; gap: 2px; background: #20202A; border: 1px solid #343440; border-radius: 9px; padding: 2px; }
+  .langswitch a { font-size: 12px; font-weight: 700; color: #C5C5D0; text-decoration: none; padding: 4px 9px; border-radius: 7px; }
+  .langswitch a.on { background: #6d28d9; color: #fff; }
   .offerlink { background: #fef3c7; color: #92400e !important; border: 1px solid #fcd34d; padding: 7px 12px; border-radius: 999px; font-weight: 800 !important; }
   .offerlink:hover { color: #78350f !important; }
   /* Founders offer: overlaps the hero so it is the first thing under the
      headline, and carries the real seat count from the subscription store. */
-  .offer { position: relative; z-index: 2; margin: -30px auto 0; max-width: 1000px; background: #fff; border: 2px solid var(--brand); border-radius: 18px; padding: 22px 24px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; box-shadow: 0 16px 44px rgba(109,40,217,.18); }
+  .offer { position: relative; z-index: 2; margin: -30px auto 0; max-width: 1000px; background: #15151D; border: 2px solid var(--brand); border-radius: 18px; padding: 22px 24px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; box-shadow: 0 16px 44px rgba(109,40,217,.28); }
   .offer-kicker { margin: 0 0 6px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #b45309; }
   .offer-title { margin: 0 0 8px; font-size: 18px; }
   .offer-price { margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .offer-price s { color: #64748b; font-size: 15px; }
+  .offer-price s { color: #94a3b8; font-size: 15px; }
   .offer-price strong { font-size: 30px; font-weight: 900; color: var(--brand); letter-spacing: -0.02em; }
-  .offer-price span { font-size: 13px; color: #475569; font-weight: 600; }
-  .offer-body { margin: 0 0 8px; font-size: 13px; color: #334155; }
-  .offer-terms { margin: 0; font-size: 12px; color: #475569; }
+  .offer-price span { font-size: 13px; color: #94a3b8; font-weight: 600; }
+  .offer-body { margin: 0 0 8px; font-size: 13px; color: #C5C5D0; }
+  .offer-prize { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: #fcd34d; background: rgba(252,211,77,.12); border: 1px solid #343440; border-radius: 10px; padding: 8px 10px; }
+  .offer-terms { margin: 0; font-size: 12px; color: #94a3b8; }
   .offer-side { text-align: center; }
-  .offer-seats { margin: 0 0 10px; font-size: 12px; font-weight: 700; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 999px; padding: 5px 12px; display: inline-block; }
+  .offer-seats { margin: 0 0 10px; font-size: 12px; font-weight: 700; color: #fcd34d; background: rgba(252,211,77,.12); border: 1px solid #343440; border-radius: 999px; padding: 5px 12px; display: inline-block; }
   .offer-btn { background: var(--brand); color: #fff; white-space: nowrap; }
   .brandkicker { margin: 0 0 16px; font-size: 27px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; }
   .brandkicker small { display: block; margin-top: 7px; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; color: rgba(255,255,255,.78); }
@@ -1455,7 +1457,7 @@ ${offerBlock}
   </div>
 </section>
 
-<section id="features" style="background:#fff;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">
+<section id="features" style="background:#15151D;border-top:1px solid #343440;border-bottom:1px solid #343440">
   <div class="wrap">
     <h2>${escapeHtml(c.featuresTitle)}</h2>
     <p class="sub">${escapeHtml(c.featuresSub)}</p>
@@ -1477,7 +1479,7 @@ ${offerBlock}
   </div>
 </section>
 
-<section id="pricing" style="background:#fff;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">
+<section id="pricing" style="background:#15151D;border-top:1px solid #343440;border-bottom:1px solid #343440">
   <div class="wrap">
     <h2>Pricing</h2>
     <p class="sub">${escapeHtml(c.pricingSub)}</p>
@@ -3206,9 +3208,9 @@ async function startServer() {
     if (!resolved) {
       return res.status(404).send(
         '<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Page not found</title></head>' +
-          '<body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#f8fafc;color:#0f172a;padding:48px 20px;text-align:center">' +
+          '<body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#0B0B0F;color:#FFFFFF;padding:48px 20px;text-align:center">' +
           `<h1 style="font-size:20px">${escapeHtml(c.notFoundTitle)}</h1>` +
-          `<p style="color:#64748b;font-size:14px">${escapeHtml(c.notFoundBody)}</p>` +
+          `<p style="color:#C5C5D0;font-size:14px">${escapeHtml(c.notFoundBody)}</p>` +
           '</body></html>'
       );
     }
@@ -6190,7 +6192,7 @@ async function startServer() {
     res.send(`
       <!doctype html>
       <html lang="en">
-        <head><title>Privacy Policy - InstaFlow AI</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;color:#333;}</style></head>
+        <head><title>Privacy Policy - InstaFlow AI</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;background:#0B0B0F;color:#FFFFFF;}</style></head>
         <body>
           <h1>Privacy Policy</h1>
           <p>Last updated: September 29, 2026</p>
@@ -6212,7 +6214,7 @@ async function startServer() {
     res.send(`
       <!doctype html>
       <html lang="en">
-        <head><title>Terms of Service - InstaFlow AI</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;color:#333;}</style></head>
+        <head><title>Terms of Service - InstaFlow AI</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6;background:#0B0B0F;color:#FFFFFF;}</style></head>
         <body>
           <h1>Terms of Service</h1>
           <p>Last updated: September 23, 2026</p>

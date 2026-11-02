@@ -84,7 +84,7 @@ type Access = 'checking' | 'owner' | 'denied' | 'error';
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#0B0B0F] text-slate-100">
       <StaleBuildBanner />
       {children}
     </div>
