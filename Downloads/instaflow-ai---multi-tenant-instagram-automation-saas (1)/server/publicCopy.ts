@@ -39,6 +39,15 @@ export interface LandingCopy {
   offerPrice: string;
   offerPer: string;
   offerBody: string;
+  /**
+   * The second half of the launch offer: a *chance* to win a year free.
+   *
+   * Its own line, with the disclaimer inside the string, because the two halves
+   * are routinely read as one promise ("₹99 for a whole year") — and a prize
+   * presented as a guaranteed benefit would make the page itself claim
+   * something untrue.
+   */
+  offerPrize: string;
   offerTerms: string;
   /** {sold} and {cap} are filled from the real subscription rows. */
   offerSeats: string;
@@ -131,6 +140,8 @@ export const LANDING: Record<Lang, LandingCopy> = {
     offerPer: '/month',
     offerBody:
       '1 Instagram account · 500 AI replies/month · 50 knowledge-base documents · Booking page + leads inbox · Unanswered-sawaal alerts',
+    offerPrize:
+      'Saath me ek mauka: is ₹99 monthly plan par 1 SAAL ka InstaFlow AI subscription FREE jeetne ka chance. Ye inaam hai, guaranteed benefit nahi — winner official campaign rules ke hisaab se chuna jayega. ₹99 sirf 1 month ka hai, 1 saal ka nahi.',
     offerTerms:
       'Auto-charge nahi hota — har month aap khud renew karte ho. Offer khula hone tak (first 100) renewal ₹99/month; offer band hone ke baad renewal normal Starter price ₹999/month. Renew na karo to bot pause ho jaata hai, data safe rehta hai.',
     offerSeats: '{sold} / {cap} seats claimed',
@@ -218,6 +229,8 @@ export const LANDING: Record<Lang, LandingCopy> = {
     offerPer: '/month',
     offerBody:
       '1 Instagram account · 500 AI replies/month · 50 knowledge-base documents · Booking page + leads inbox · Unanswered-question alerts',
+    offerPrize:
+      'Plus a chance to win 1 YEAR of InstaFlow AI free with this ₹99 monthly plan. It is a prize, not a guaranteed benefit — the winner is picked under the official campaign rules. The ₹99 plan runs for 1 month, not 1 year.',
     offerTerms:
       'No auto-charge — you renew each month yourself. While the offer is open (first 100), renewal is ₹99/month; once it closes, renewal is at the normal Starter price of ₹999/month. If you do not renew, the bot pauses and your data stays safe.',
     offerSeats: '{sold} / {cap} seats claimed',

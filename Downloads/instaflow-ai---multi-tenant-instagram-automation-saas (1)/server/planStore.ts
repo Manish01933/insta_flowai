@@ -85,6 +85,12 @@ export const PLANS: Plan[] = [
       'Knowledge base (50 documents)',
       'Booking page + leads inbox',
       'Unanswered-question alerts',
+      // The campaign is part of this plan's offer, so it is listed here rather
+      // than only on the landing page. Worded as a *chance* on purpose: the
+      // free year is a prize drawn under the campaign rules, and a plan card is
+      // exactly where a reader would otherwise take it for a guaranteed year of
+      // service.
+      'Chance to win 1 year free (campaign prize — not guaranteed)',
     ],
     limits: { instagramAccounts: 1, aiRepliesPerMonth: 500, knowledgeDocuments: 50 },
   },
